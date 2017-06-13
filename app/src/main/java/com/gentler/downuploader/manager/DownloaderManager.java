@@ -16,12 +16,13 @@ public class DownloaderManager {
 
     private static DownloaderManager mDownloaderManager;
     private List<DownloaderObserver> mDownloaderObservers = new ArrayList<>();
-    private ConcurrentHashMap<String,DownloadInfo> mDownloadInfoMap;
-    private ConcurrentHashMap<String,DownloadTask> mDownloadTaskMap;
-
-    private DownloaderManager() {
+    private static ConcurrentHashMap<String,DownloadInfo> mDownloadInfoMap;
+    private static ConcurrentHashMap<String,DownloadTask> mDownloadTaskMap;
+    static{
         mDownloadInfoMap=new ConcurrentHashMap<>();
         mDownloadTaskMap=new ConcurrentHashMap<>();
+    }
+    private DownloaderManager() {
     }
 
     public static DownloaderManager getInstance() {
@@ -94,8 +95,8 @@ public class DownloaderManager {
      */
     public synchronized void download(DownloadInfo downloadInfo) {
         DownloadTask downloadTask = new DownloadTask(downloadInfo);
-        ThreadPoolManager.getInstance().execute(downloadTask);
         mDownloadInfoMap.put(downloadInfo.getId(),downloadInfo);//将下载的DownloadInfo放入Map中
+        ThreadPoolManager.getInstance().execute(downloadTask);
         mDownloadTaskMap.put(downloadInfo.getId(),downloadTask);
     }
 

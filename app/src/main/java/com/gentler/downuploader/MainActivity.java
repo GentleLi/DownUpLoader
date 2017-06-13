@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -24,6 +25,7 @@ import permissions.dispatcher.RuntimePermissions;
 @RuntimePermissions
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = MainActivity.class.getSimpleName();
     @BindView(R.id.btn_download)
     AppCompatButton mBtnDownload;
 
@@ -39,15 +41,25 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.btn_download)
     public void onClickDownload(View view) {
         DownloadInfo downloadInfo = new DownloadInfo();
+        downloadInfo.setId("gift-19");
         downloadInfo.setCurrPos(0);
         downloadInfo.setSize(2559755);
         downloadInfo.setName("gift-19");
         downloadInfo.setDownloadUrl("http://resource.peppertv.cn/gift/meteor_3d416423dbca1a0940fc3d8ac81f9410_2559755.zip");
         DownloaderManager.getInstance().download(downloadInfo);
+        DownloaderManager.getInstance().registerObserver(new DownloaderManager.DownloaderObserver() {
+            @Override
+            public void onDownloadStateChanged(DownloadInfo downloadInfo) {
+                Log.e(TAG,"下载完成 downloadInfo.getCurrState()："+downloadInfo.getCurrState());
+            }
+
+            @Override
+            public void onDownloadProgressChanged(DownloadInfo downloadInfo) {
+                Log.e(TAG,"当前下载："+downloadInfo.getCurrPos());
+            }
+        });
 
     }
-
-
 
 
     @OnShowRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)

@@ -49,10 +49,10 @@ public class DownloadTask implements Runnable {
             connection.setUseCaches(true);
             connection.setDoInput(true);
             connection.setConnectTimeout(60 * 1000);
+            connection.setRequestProperty("Range", "bytes=" + downloadInfo.getCurrPos() + "-" + downloadInfo.getSize());
             Log.e(TAG, "connection.getContentLength()==" + connection.getContentLength());
             Log.e(TAG, "connection.getResponseCode()==" + connection.getResponseCode());
             stopPos = connection.getContentLength();
-            connection.setRequestProperty("Range", "bytes=" + downloadInfo.getCurrPos() + "-" + downloadInfo.getSize());
             connection.connect();
 
             RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
@@ -77,8 +77,6 @@ public class DownloadTask implements Runnable {
                     connection.disconnect();
                     connection=null;
                 }
-                Log.e(TAG,"下载完成");
-//                startPos = stopPos + 1;
             }
         } catch (IOException e) {
             e.printStackTrace();
