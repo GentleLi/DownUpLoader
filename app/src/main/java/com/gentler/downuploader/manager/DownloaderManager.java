@@ -2,9 +2,11 @@ package com.gentler.downuploader.manager;
 
 
 import com.gentler.downuploader.model.DownloadInfo;
+import com.gentler.downuploader.task.DownloadTask;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by Jiantao on 2017/6/12.
@@ -14,9 +16,10 @@ public class DownloaderManager {
 
     private static DownloaderManager mDownloaderManager;
     private List<DownloaderObserver> mDownloaderObservers = new ArrayList<>();
-
+    private ConcurrentHashMap<String,DownloadInfo> mDownloadInfoMap;
 
     private DownloaderManager() {
+        mDownloadInfoMap=new ConcurrentHashMap<>();
     }
 
     public static DownloaderManager getInstance() {
@@ -56,15 +59,16 @@ public class DownloaderManager {
         }
     }
 
-    public void notifyDownloadeProgressChanged(DownloadInfo downloadInfo){
-        for(DownloaderObserver observer:mDownloaderObservers){
+    public void notifyDownloadProgressChanged(DownloadInfo downloadInfo) {
+        for (DownloaderObserver observer : mDownloaderObservers) {
             observer.onDownloadProgressChanged(downloadInfo);
         }
     }
 
-    public synchronized void download(){
-
+    public synchronized void download(DownloadInfo downloadInfo) {
+        DownloadTask mDownloadTask = new DownloadTask(downloadInfo);
+        mDownloadInfoMap.put(downloadInfo.getId(),downloadInfo);//将下载的DownloadInfo放入Map中
+        ThreadPoolManager.getInstance().execute(mDownloadTask);
     }
-
 
 }

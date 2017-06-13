@@ -1,5 +1,7 @@
 package com.gentler.downuploader.model;
 
+import com.gentler.downuploader.config.DownloadState;
+
 /**
  * Created by Jiantao on 2017/6/12.
  */
@@ -10,7 +12,7 @@ public class DownloadInfo {
     private String downloadUrl;
     private long size;
     private long currPos;
-    private int currState;
+    private int currState= DownloadState.IDLE;//当前未下载状态 初始化状态
     private String path;
 
     public String getId() {

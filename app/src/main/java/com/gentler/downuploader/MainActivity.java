@@ -8,10 +8,8 @@ import android.support.v7.widget.AppCompatButton;
 import android.view.View;
 import android.widget.Toast;
 
-
-import com.gentler.downuploader.manager.ThreadPoolManager;
+import com.gentler.downuploader.manager.DownloaderManager;
 import com.gentler.downuploader.model.DownloadInfo;
-import com.gentler.downuploader.task.DownloadTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,8 +43,8 @@ public class MainActivity extends AppCompatActivity {
         downloadInfo.setSize(2559755);
         downloadInfo.setName("gift-19");
         downloadInfo.setDownloadUrl("http://resource.peppertv.cn/gift/meteor_3d416423dbca1a0940fc3d8ac81f9410_2559755.zip");
-        DownloadTask mDownloadTask = new DownloadTask(downloadInfo);
-        ThreadPoolManager.getInstance().execute(mDownloadTask);
+        DownloaderManager.getInstance().download(downloadInfo);
+
     }
 
 
