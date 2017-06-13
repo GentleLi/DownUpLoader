@@ -17,9 +17,11 @@ public class DownloaderManager {
     private static DownloaderManager mDownloaderManager;
     private List<DownloaderObserver> mDownloaderObservers = new ArrayList<>();
     private ConcurrentHashMap<String,DownloadInfo> mDownloadInfoMap;
+    private ConcurrentHashMap<String,DownloadTask> mDownloadTaskMap;
 
     private DownloaderManager() {
         mDownloadInfoMap=new ConcurrentHashMap<>();
+        mDownloadTaskMap=new ConcurrentHashMap<>();
     }
 
     public static DownloaderManager getInstance() {
@@ -33,6 +35,27 @@ public class DownloaderManager {
         return mDownloaderManager;
     }
 
+    /**
+     * 暂停单个下载任务
+     * @param downloadInfo
+     */
+    public synchronized void pause(DownloadInfo downloadInfo){//暂停下载任务
+        if (null!=mDownloadTaskMap){
+            DownloadTask downloadTask=mDownloadTaskMap.get(downloadInfo.getId());
+            ThreadPoolManager.getInstance().remove(downloadTask);
+        }
+    }
+
+    /**
+     * 移除单个下载任务
+     * @param downloadInfo
+     */
+    public void removeSingleDownloadTask(DownloadInfo downloadInfo){
+        if (null==downloadInfo||null==mDownloadInfoMap)return;
+        if (mDownloadInfoMap.contains(downloadInfo.getId())){
+            mDownloadInfoMap.remove(downloadInfo.getId());
+        }
+    }
 
     public interface DownloaderObserver {
 
@@ -65,10 +88,15 @@ public class DownloaderManager {
         }
     }
 
+    /**
+     * 放入队列，开启下载任务
+     * @param downloadInfo
+     */
     public synchronized void download(DownloadInfo downloadInfo) {
-        DownloadTask mDownloadTask = new DownloadTask(downloadInfo);
+        DownloadTask downloadTask = new DownloadTask(downloadInfo);
+        ThreadPoolManager.getInstance().execute(downloadTask);
         mDownloadInfoMap.put(downloadInfo.getId(),downloadInfo);//将下载的DownloadInfo放入Map中
-        ThreadPoolManager.getInstance().execute(mDownloadTask);
+        mDownloadTaskMap.put(downloadInfo.getId(),downloadTask);
     }
 
 }

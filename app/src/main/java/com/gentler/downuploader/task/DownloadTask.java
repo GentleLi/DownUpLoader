@@ -86,14 +86,16 @@ public class DownloadTask implements Runnable {
         if (file.length()==downloadInfo.getSize()){
             downloadInfo.setCurrState(DownloadState.SUCCESS);
             DownloaderManager.getInstance().notifyDownloadStateChanged(downloadInfo);
+            DownloaderManager.getInstance().removeSingleDownloadTask(downloadInfo);//移除下载任务
             //TODO　存储临时下载信息到数据库中
         }else if(downloadInfo.getCurrState()==DownloadState.PAUSE){//暂停中
             downloadInfo.setCurrState(DownloadState.PAUSE);
             DownloaderManager.getInstance().notifyDownloadStateChanged(downloadInfo);
-            //TODO 储存下载零食信息到数据库中
+            //TODO 储存下载临时信息到数据库中
         }else{//下载失败
             downloadInfo.setCurrState(DownloadState.ERROR);
             DownloaderManager.getInstance().notifyDownloadStateChanged(downloadInfo);
+            DownloaderManager.getInstance().removeSingleDownloadTask(downloadInfo);
         }
 
 

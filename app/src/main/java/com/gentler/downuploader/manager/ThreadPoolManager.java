@@ -14,8 +14,8 @@ public class ThreadPoolManager {
     private static ThreadPoolManager mThreadPoolManager;
     private int corePoolSize;
     private int maxPoolSize;
-    private long keepAliveTime;
-    private TimeUnit timeUnit = TimeUnit.HOURS;
+    private long keepAliveTime=30;
+    private TimeUnit timeUnit = TimeUnit.MINUTES;
     private ThreadPoolExecutor mThreadPoolExecutor;
 
     private ThreadPoolManager() {
@@ -39,10 +39,9 @@ public class ThreadPoolManager {
         mThreadPoolExecutor.execute(runnable);
     }
 
-    public void remove(Runnable runnable) {
+    public void remove(Runnable runnable) {//暂停任务
         if (null == runnable) return;
         mThreadPoolExecutor.remove(runnable);
     }
-
 
 }
