@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">DownUpLoader</string>
+    <string name="permission_camera_rationale">需要使用SD卡权限</string>
+    <string name="permission_camera_neverask">永远不允许此权限</string>
+    <string name="permission_camera_denied">你已经拒绝了此权限</string>
+    <string name="button_allow">允许</string>
+    <string name="button_deny">拒绝</string>
+
 </resources>

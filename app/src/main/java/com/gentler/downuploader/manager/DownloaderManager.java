@@ -1,6 +1,7 @@
-package com.gentler.downuploader.utils;
+package com.gentler.downuploader.manager;
 
-import com.example.administrato.updownloader.model.DownloadInfo;
+
+import com.gentler.downuploader.model.DownloadInfo;
 
 import java.util.ArrayList;
 import java.util.List;

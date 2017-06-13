@@ -2,7 +2,6 @@ package com.gentler.downuploader.task;
 
 import android.util.Log;
 
-
 import com.gentler.downuploader.config.Storage;
 import com.gentler.downuploader.model.DownloadInfo;
 
@@ -32,24 +31,28 @@ public class DownloadTask implements Runnable {
     @Override
     public void run() {
         try {
-            URL url = new URL("download url");
+            URL url = new URL(downloadInfo.getDownloadUrl());
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.setUseCaches(true);
             connection.setDoInput(true);
             connection.setConnectTimeout(60 * 1000);
-            connection.setRequestProperty("Range", "bytes=" + downloadInfo.getCurrPos() + "-" + downloadInfo.getSize());
+            connection.setRequestProperty("Range", "bytes=" + startPos + "-" + downloadInfo.getSize());
             connection.connect();
             stopPos = connection.getContentLength();
             Log.e(TAG, "connection.getContentLength()==" + connection.getContentLength());
             Log.e(TAG, "connection.getResponseCode()==" + connection.getResponseCode());
-            File file = new File(Storage.DOWNLOAD_DIR + downloadInfo.getName());
+            File fileDir=new File(Storage.DOWNLOAD_DIR);
+            if (!fileDir.exists()){
+                fileDir.mkdirs();
+            }
+            File file = new File(fileDir,downloadInfo.getName());
             RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
             randomAccessFile.seek(startPos);
             InputStream is = null;
             if (connection.getResponseCode() == 206) {
                 is = connection.getInputStream();
-                int count = 0;
+                int count;
                 byte[] buffer = new byte[1024];
                 while ((count = is.read(buffer)) != -1) {
                     randomAccessFile.write(buffer, 0, count);
@@ -60,13 +63,17 @@ public class DownloadTask implements Runnable {
                 if (is != null) {
                     is.close();
                 }
-                startPos = stopPos + 1;
+                if (connection!=null){
+                    connection.disconnect();
+                    connection=null;
+                }
+                Log.e(TAG,"下载完成");
+//                startPos = stopPos + 1;
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
 
 
 }
