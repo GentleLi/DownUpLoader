@@ -61,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
     @OnShowRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     void showRationaleForCamera(final PermissionRequest request) {
         new AlertDialog.Builder(this)
