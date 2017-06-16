@@ -85,6 +85,7 @@ public class DownloadTask implements Runnable {
             downloadInfo.setCurrState(DownloadState.SUCCESS);
             DownloaderManager.getInstance().notifyDownloadStateChanged(downloadInfo);
             DownloaderManager.getInstance().removeSingleDownloadTask(downloadInfo);//移除下载任务
+
             //TODO　存储临时下载信息到数据库中
         }else if(downloadInfo.getCurrState()==DownloadState.PAUSE){//暂停中
             downloadInfo.setCurrState(DownloadState.PAUSE);

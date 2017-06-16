@@ -2,18 +2,17 @@ package com.gentler.downuploader.database;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.text.TextUtils;
 
 import com.gentler.downuploader.config.AppConstants;
 import com.gentler.downuploader.model.DownloadInfo;
 import com.gentler.downuploader.utils.LogUtils;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
- * Created by administrato on 2017/6/14.
+ * Created by jiantao on 2017/6/14.
  */
 
 public class DBManager {
@@ -66,6 +65,24 @@ public class DBManager {
         downloadInfos.forEach(downloadInfo -> {
             addDownloadInfo(downloadInfo);
         });
+    }
+
+    /**
+     * 查询下载信息
+     * @param id 关键字 id 在此实际为 下载资源的resourseId
+     */
+    public void query(String id){
+        SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
+        db.beginTransaction();
+        Cursor cursor=db.query(DBHelper.DB_NAME,new String[]{AppConstants.DB_COLUMN_TARGET_ID},"? = "+id,null,null,null,null);
+        if (null!=cursor){
+            while (cursor.moveToNext()){
+                int count=cursor.getColumnCount();
+                LogUtils.e(TAG,"count=="+count);
+
+            }
+        }
+
     }
 
 
