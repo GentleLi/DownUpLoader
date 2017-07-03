@@ -6,7 +6,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by administrato on 2017/6/13.
+ * 线程管理类
+ * Created by Jiantao on 2017/6/13.
  */
 
 public class ThreadPoolManager {

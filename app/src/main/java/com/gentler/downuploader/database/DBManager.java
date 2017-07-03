@@ -59,6 +59,7 @@ public class DBManager {
 
     /**
      * 插入一个集合
+     *
      * @param downloadInfos
      */
     public void addAll(List<DownloadInfo> downloadInfos) {
@@ -69,21 +70,26 @@ public class DBManager {
 
     /**
      * 查询下载信息
+     *
      * @param id 关键字 id 在此实际为 下载资源的resourseId
      */
-    public void query(String id){
+    public void query(String id) {
         SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
         db.beginTransaction();
-        Cursor cursor=db.query(DBHelper.DB_NAME,new String[]{AppConstants.DB_COLUMN_TARGET_ID},"? = "+id,null,null,null,null);
-        if (null!=cursor){
-            while (cursor.moveToNext()){
-                int count=cursor.getColumnCount();
-                LogUtils.e(TAG,"count=="+count);
+        Cursor cursor = db.query(DBHelper.DB_NAME, new String[]{AppConstants.DB_COLUMN_TARGET_ID}, "? = " + id, null, null, null, null);
+        if (null != cursor) {
+            while (cursor.moveToNext()) {
+                int count = cursor.getColumnCount();
+                LogUtils.e(TAG, "count==" + count);
+                LogUtils.e(TAG, "cursor.getColumnIndex(AppConstants.DB_COLUMN_TARGET_ID):" + cursor.getColumnIndex(AppConstants.DB_COLUMN_TARGET_ID));
+                for (int i = 0; i < count; i++) {
+                    LogUtils.e(TAG, "cursor.getColumnName(" + i + "):" + cursor.getColumnName(i));
+                }
 
             }
         }
-
     }
+
 
 
 }
