@@ -34,10 +34,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-
-        float a=Float.parseFloat("-1.24");
-        Log.e(TAG,"a=="+a);
-
     }
 
     @NeedsPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)

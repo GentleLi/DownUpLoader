@@ -52,6 +52,8 @@ public class DBManager {
         values.put(AppConstants.DB_COLUMN_TARGET_PATH, downloadInfo.getPath());
         long rowId = db.insert(DBHelper.DB_NAME, null, values);
         if (rowId == -1) {
+            LogUtils.i(TAG, "插入失败");
+        }else{
             LogUtils.i(TAG, "插入成功");
         }
         db.endTransaction();
@@ -85,7 +87,6 @@ public class DBManager {
                 for (int i = 0; i < count; i++) {
                     LogUtils.e(TAG, "cursor.getColumnName(" + i + "):" + cursor.getColumnName(i));
                 }
-
             }
         }
     }

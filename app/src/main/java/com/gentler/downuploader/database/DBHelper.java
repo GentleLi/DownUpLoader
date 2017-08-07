@@ -9,7 +9,7 @@ import com.gentler.downuploader.utils.LogUtils;
 
 
 /**
- * Created by administrato on 2017/6/14.
+ * Created by Jiantao on 2017/6/14.
  */
 
 public class DBHelper extends SQLiteOpenHelper {

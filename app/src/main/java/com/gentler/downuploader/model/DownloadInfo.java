@@ -3,6 +3,7 @@ package com.gentler.downuploader.model;
 import com.gentler.downuploader.config.DownloadState;
 
 /**
+ * 下载信息类，包含要下载文件的各种信息
  * Created by Jiantao on 2017/6/12.
  */
 

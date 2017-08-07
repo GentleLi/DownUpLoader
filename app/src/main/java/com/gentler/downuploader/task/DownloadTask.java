@@ -16,6 +16,7 @@ import java.net.URL;
 
 
 /**
+ * 下载任务类
  * Created by Jiantao on 2017/6/12.
  */
 
