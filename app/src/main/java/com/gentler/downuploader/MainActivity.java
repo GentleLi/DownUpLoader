@@ -42,9 +42,10 @@ public class MainActivity extends AppCompatActivity {
         DownloadInfo downloadInfo = new DownloadInfo();
         downloadInfo.setId("gift-19");
         downloadInfo.setCurrPos(0);
-        downloadInfo.setSize(2559755);
+        downloadInfo.setSize(1145511);
         downloadInfo.setName("gift-19");
-        downloadInfo.setDownloadUrl("http://resource.peppertv.cn/gift/meteor_3d416423dbca1a0940fc3d8ac81f9410_2559755.zip");
+//        downloadInfo.setDownloadUrl("http://resource.peppertv.cn/gift/meteor_3d416423dbca1a0940fc3d8ac81f9410_2559755.zip");
+        downloadInfo.setDownloadUrl("http://192.168.1.105:8080/LiveTypeMenu.170808155926.zip");
         DownloaderManager.getInstance().download(downloadInfo);
         DownloaderManager.getInstance().registerObserver(new DownloaderManager.DownloaderObserver() {
             @Override
