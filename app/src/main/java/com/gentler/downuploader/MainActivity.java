@@ -1,12 +1,14 @@
 package com.gentler.downuploader;
 
 import android.Manifest;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.gentler.downuploader.manager.DownloaderManager;
@@ -26,40 +28,54 @@ import permissions.dispatcher.RuntimePermissions;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    @BindView(R.id.btn_download)
-    AppCompatButton mBtnDownload;
+    @BindView(R.id.btn_start)
+    AppCompatButton mBtnStart;
+    @BindView(R.id.pb_download)
+    ProgressBar mProgressBar;
+    private Context mContext;
+    private DownloadInfo mDownloadInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mContext=getApplicationContext();
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
     }
 
     @NeedsPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-    @OnClick(R.id.btn_download)
+    @OnClick(R.id.btn_start)
     public void onClickDownload(View view) {
-        DownloadInfo downloadInfo = new DownloadInfo();
-        downloadInfo.setId("gift-19");
-        downloadInfo.setCurrPos(0);
-        downloadInfo.setSize(1145511);
-        downloadInfo.setName("gift-19");
+        mDownloadInfo = new DownloadInfo();
+        mDownloadInfo.setId("gift-19");
+        mDownloadInfo.setCurrPos(0);
+        mDownloadInfo.setSize(13462118);
+        mDownloadInfo.setName("gift-19");
 //        downloadInfo.setDownloadUrl("http://resource.peppertv.cn/gift/meteor_3d416423dbca1a0940fc3d8ac81f9410_2559755.zip");
-        downloadInfo.setDownloadUrl("http://192.168.1.105:8080/LiveTypeMenu.170808155926.zip");
-        DownloaderManager.getInstance().download(downloadInfo);
+        mDownloadInfo.setDownloadUrl("http://192.168.1.105:8080/AdobePatcher.zip");
+        DownloaderManager.getInstance().download(mDownloadInfo);
         DownloaderManager.getInstance().registerObserver(new DownloaderManager.DownloaderObserver() {
             @Override
-            public void onDownloadStateChanged(DownloadInfo downloadInfo) {
-                Log.e(TAG,"下载完成 downloadInfo.getCurrState()："+downloadInfo.getCurrState());
+            public void onDownloadStateChanged(DownloadInfo downloadInfo) {//下载状态发生改变
+                Log.e(TAG,"onDownloadStateChanged downloadInfo.getCurrState()："+downloadInfo.getCurrState());
             }
 
             @Override
             public void onDownloadProgressChanged(DownloadInfo downloadInfo) {
                 Log.e(TAG,"当前下载："+downloadInfo.getCurrPos());
+                mProgressBar.setProgress((int) (downloadInfo.getCurrPos()*1000/downloadInfo.getSize()));
             }
         });
 
     }
+
+    @OnClick(R.id.btn_pause)
+    public void onClickPause(View view){
+        DownloaderManager.getInstance().pause(mDownloadInfo);
+    }
+
+
+
 
     @OnShowRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     void showRationaleForCamera(final PermissionRequest request) {

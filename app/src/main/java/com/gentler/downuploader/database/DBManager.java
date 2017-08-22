@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.provider.SyncStateContract;
 
 import com.gentler.downuploader.config.AppConstants;
 import com.gentler.downuploader.model.DownloadInfo;

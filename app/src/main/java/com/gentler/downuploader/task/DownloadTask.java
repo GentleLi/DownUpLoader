@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.gentler.downuploader.config.DownloadState;
 import com.gentler.downuploader.config.Storage;
+import com.gentler.downuploader.database.DBManager;
 import com.gentler.downuploader.manager.DownloaderManager;
 import com.gentler.downuploader.model.DownloadInfo;
 
@@ -31,29 +32,60 @@ public class DownloadTask implements Runnable {
         this.downloadInfo = downloadInfo;
     }
 
+    /**
+     * 处理下载暂停
+     */
+    public void onDownloadPause() {//暂停时调用此方法
+        DBManager.getInstance(DownloaderManager.getContext()).addDownloadInfo(downloadInfo);//将下载信息存储到数据库中
+    }
+
+    /**
+     * 处理下载失败
+     */
+    public void onDownloadError() {//TODO 删除掉本地的资源
+        DownloaderManager.getInstance().notifyDownloadStateChanged(downloadInfo);
+        DownloaderManager.getInstance().removeSingleDownloadTask(downloadInfo);
+
+    }
+
     @Override
     public void run() {
-        File fileDir=new File(Storage.DOWNLOAD_DIR);
-        if (!fileDir.exists()){
+        File fileDir = new File(Storage.DOWNLOAD_DIR);
+        if (!fileDir.exists()) {
             fileDir.mkdirs();
         }
-        File file = new File(fileDir,downloadInfo.getName());
-        if (!file.exists()||file.length()!=downloadInfo.getCurrPos()||file.length()==0){//如果文件不存在 或者文件长度为0 或者文件的长度与当前标记的下载长度不相等 则删除文件重新下载
-            file.delete();
-            downloadInfo.setCurrPos(0);
+        File file = new File(fileDir, downloadInfo.getName());//下载存放的文件
+        Log.e(TAG, "file.length():" + file.length());
+        Log.e(TAG, "downloadInfo.getCurrPos():" + downloadInfo.getCurrPos());
+        try {
+            if (file.exists()) {//文件存在
+                if (file.length() != downloadInfo.getCurrPos()) {//如果文件不存在 或者文件长度为0 或者文件的长度与当前标记的下载长度不相等 则删除文件重新下载
+                    file.delete();
+                    file.createNewFile();
+                    downloadInfo.setCurrPos(0);
+                }
+            } else {
+                file.createNewFile();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         try {
             downloadInfo.setCurrState(DownloadState.DOWNLOADING);
+            startPos = downloadInfo.getCurrPos();
             URL url = new URL(downloadInfo.getDownloadUrl());
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.setUseCaches(true);
             connection.setDoInput(true);
             connection.setConnectTimeout(60 * 1000);
-            connection.setRequestProperty("Range", "bytes=" + downloadInfo.getCurrPos() + "-" + downloadInfo.getSize());
+            connection.setRequestProperty("Range", "bytes=" + startPos + "-" + downloadInfo.getSize());
             Log.e(TAG, "connection.getContentLength()==" + connection.getContentLength());
             Log.e(TAG, "connection.getResponseCode()==" + connection.getResponseCode());
             stopPos = connection.getContentLength();
+            if (stopPos <= 0) {//下载出错，资源不存在
+                downloadInfo.setCurrState(DownloadState.ERROR);
+            }
             connection.connect();
 
             RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
@@ -63,10 +95,23 @@ public class DownloadTask implements Runnable {
                 is = connection.getInputStream();
                 int count;
                 byte[] buffer = new byte[1024];
-                while ((count = is.read(buffer)) != -1&&downloadInfo.getCurrState()== DownloadState.DOWNLOADING) {//判断当前状态是否是正在下载
+                while ((count = is.read(buffer)) != -1 && (downloadInfo.getCurrState() == DownloadState.DOWNLOADING || downloadInfo.getCurrState() == DownloadState.RESTART)) {//判断当前状态是否是正在下载
                     randomAccessFile.write(buffer, 0, count);
-                    downloadInfo.setCurrPos(downloadInfo.getCurrPos()+count);
+                    downloadInfo.setCurrPos(downloadInfo.getCurrPos() + count);
                     DownloaderManager.getInstance().notifyDownloadProgressChanged(downloadInfo);
+                    //下载过程中判断下载的状态 如果下载暂停 将下载信息存储到数据库中
+                    if (file.length() == downloadInfo.getSize()) {
+                        downloadInfo.setCurrState(DownloadState.SUCCESS);
+                        DownloaderManager.getInstance().notifyDownloadStateChanged(downloadInfo);
+                        DownloaderManager.getInstance().removeSingleDownloadTask(downloadInfo);//移除下载任务
+                    }
+                }
+                if (downloadInfo.getCurrState() == DownloadState.PAUSE) {//暂停中
+                    downloadInfo.setCurrState(DownloadState.PAUSE);
+                    DownloaderManager.getInstance().notifyDownloadStateChanged(downloadInfo);
+                    onDownloadPause();
+                } else if (downloadInfo.getCurrState() == DownloadState.ERROR) {//下载失败
+                    onDownloadError();
                 }
                 if (randomAccessFile != null) {
                     randomAccessFile.close();
@@ -74,31 +119,14 @@ public class DownloadTask implements Runnable {
                 if (is != null) {
                     is.close();
                 }
-                if (connection!=null){
+                if (connection != null) {
                     connection.disconnect();
-                    connection=null;
+                    connection = null;
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (file.length()==downloadInfo.getSize()){
-            downloadInfo.setCurrState(DownloadState.SUCCESS);
-            DownloaderManager.getInstance().notifyDownloadStateChanged(downloadInfo);
-            DownloaderManager.getInstance().removeSingleDownloadTask(downloadInfo);//移除下载任务
-
-            //TODO　存储临时下载信息到数据库中
-        }else if(downloadInfo.getCurrState()==DownloadState.PAUSE){//暂停中
-            downloadInfo.setCurrState(DownloadState.PAUSE);
-            DownloaderManager.getInstance().notifyDownloadStateChanged(downloadInfo);
-            //TODO 储存下载临时信息到数据库中
-        }else{//下载失败
-            downloadInfo.setCurrState(DownloadState.ERROR);
-            DownloaderManager.getInstance().notifyDownloadStateChanged(downloadInfo);
-            DownloaderManager.getInstance().removeSingleDownloadTask(downloadInfo);
-        }
-
-
     }
 
 

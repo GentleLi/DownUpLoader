@@ -1,7 +1,9 @@
 package com.gentler.downuploader;
 
 import android.app.Application;
+import android.content.Context;
 
+import com.gentler.downuploader.manager.DownloaderManager;
 import com.gentler.downuploader.utils.Utils;
 
 /**
@@ -10,10 +12,13 @@ import com.gentler.downuploader.utils.Utils;
 
 public class MyApp extends Application {
 
+    private Context mContext;
     @Override
     public void onCreate() {
         super.onCreate();
-        Utils.init(this);
+        mContext=getApplicationContext();
+        Utils.init(mContext);
+        DownloaderManager.init(mContext);
     }
 
     @Override

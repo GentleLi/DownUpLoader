@@ -1,6 +1,9 @@
 package com.gentler.downuploader.manager;
 
 
+import android.content.Context;
+
+import com.gentler.downuploader.config.DownloadState;
 import com.gentler.downuploader.model.DownloadInfo;
 import com.gentler.downuploader.task.DownloadTask;
 
@@ -15,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DownloaderManager {
 
     private static DownloaderManager mDownloaderManager;
+    private static Context mContext;
     private List<DownloaderObserver> mDownloaderObservers = new ArrayList<>();
     private static ConcurrentHashMap<String,DownloadInfo> mDownloadInfoMap;
     private static ConcurrentHashMap<String,DownloadTask> mDownloadTaskMap;
@@ -36,6 +40,17 @@ public class DownloaderManager {
         return mDownloaderManager;
     }
 
+    public static void init(Context context){
+        mContext=context;
+    }
+
+    public static Context getContext(){
+        if (null==mContext){
+            throw new NullPointerException("Oops! Context is null,have you initialize DownloadManager in your app's application ?");
+        }
+        return mContext;
+    }
+
     /**
      * 暂停单个下载任务
      * @param downloadInfo
@@ -43,6 +58,7 @@ public class DownloaderManager {
     public synchronized void pause(DownloadInfo downloadInfo){//暂停下载任务
         if (null!=mDownloadTaskMap){
             DownloadTask downloadTask=mDownloadTaskMap.get(downloadInfo.getId());
+            downloadInfo.setCurrState(DownloadState.PAUSE);//设置下载状态为暂停
             ThreadPoolManager.getInstance().remove(downloadTask);
         }
     }

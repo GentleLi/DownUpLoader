@@ -1,25 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.gentler.downuploader.MainActivity">
 
-    <android.support.v7.widget.AppCompatTextView
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:background="@color/colorAccent"
-        android:text="\ud83d\ude00" />
+    <ProgressBar
+        android:id="@+id/pb_download"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="@dimen/dp_300"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:max="1000"
+        android:maxHeight="48dp"
+        android:minHeight="48dp"
+        android:progress="300" />
 
-    <android.support.v7.widget.AppCompatButton
-        android:id="@+id/btn_download"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Start Download!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:orientation="vertical">
 
-</android.support.constraint.ConstraintLayout>
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/btn_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start Download!" />
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/btn_pause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Stop Download!" />
+
+    </LinearLayout>
+
+</RelativeLayout>
