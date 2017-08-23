@@ -44,8 +44,8 @@ public class DBManager {
      */
     public void addDownloadInfo(DownloadInfo downloadInfo) {
         SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
+        db.beginTransaction();//开启事务
         try {
-            db.beginTransaction();
             ContentValues values = new ContentValues();
             values.put(AppConstants.DB_COLUMN_TARGET_NAME, downloadInfo.getName());
             values.put(AppConstants.DB_COLUMN_TARGET_ID, downloadInfo.getId());
@@ -59,6 +59,7 @@ public class DBManager {
                 LogUtils.i(TAG, "插入失败");
             } else {
                 LogUtils.i(TAG, "插入成功");
+                db.setTransactionSuccessful();//设置事务的标志为True
             }
         } catch (SQLiteException e) {
             e.printStackTrace();
@@ -127,7 +128,6 @@ public class DBManager {
         DownloadInfo downloadInfo = null;
         LogUtils.d(TAG, "find");
         SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
-        db.beginTransaction();
         try {
             Cursor cursor = db.query(DBHelper.TABLE_NAME, null, AppConstants.DB_COLUMN_TARGET_ID + " = ?", new String[]{id}, null, null, null);
             if (null != cursor) {
@@ -170,7 +170,6 @@ public class DBManager {
         } catch (SQLiteException e) {
             e.printStackTrace();
         } finally {
-            db.endTransaction();
             db.close();
         }
         return downloadInfo;
@@ -193,6 +192,8 @@ public class DBManager {
                 LogUtils.d(TAG, "删除失败");
             } else {//删除了多少行
                 LogUtils.d(TAG, "删除成功");
+                db.setTransactionSuccessful();//设置事务的标志为true，表示这次操作成功
+                //事务的提交或回滚是由事务的标志决定的,如果事务的标志为True，事务就会提交，否侧回滚,默认情况下事务的标志为False
             }
         } catch (SQLiteException e) {
             e.printStackTrace();
@@ -224,6 +225,7 @@ public class DBManager {
                 LogUtils.d(TAG, "更新失败");
             } else {//删除了多少行
                 LogUtils.d(TAG, "更新成功");
+                db.setTransactionSuccessful();
             }
         } catch (SQLiteException e) {
             e.printStackTrace();
