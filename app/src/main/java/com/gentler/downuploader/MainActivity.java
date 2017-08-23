@@ -11,6 +11,8 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.gentler.downuploader.database.DBHelper;
+import com.gentler.downuploader.database.DBManager;
 import com.gentler.downuploader.manager.DownloaderManager;
 import com.gentler.downuploader.model.DownloadInfo;
 
@@ -48,6 +50,9 @@ public class MainActivity extends AppCompatActivity {
     public void onClickDownload(View view) {
         mDownloadInfo = new DownloadInfo();
         mDownloadInfo.setId("gift-19");
+        if (null!=mDownloadInfo){
+            DBManager.getInstance(mContext).query(mDownloadInfo.getId());
+        }
         mDownloadInfo.setCurrPos(0);
         mDownloadInfo.setSize(13462118);
         mDownloadInfo.setName("gift-19");

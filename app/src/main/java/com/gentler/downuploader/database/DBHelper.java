@@ -14,11 +14,20 @@ import com.gentler.downuploader.utils.LogUtils;
 
 public class DBHelper extends SQLiteOpenHelper {
     public static final String TAG = DBHelper.class.getSimpleName();
-    public static final String DB_NAME = "download";
-    public static int DB_VERSION = 1;
-    static final String DATABASE_CREATE_STATEMENT = "CREATE TABLE IF NOT EXISTS download_info(" + AppConstants.DB_COLUMN_ID + " integer primary key autoincrement," + AppConstants.DB_COLUMN_TARGET_ID + " varchar not null," +
-            AppConstants.DB_COLUMN_TARGET_NAME + " varchar not null," + AppConstants.DB_COLUMN_DOWNLOAD_URL + " text not null," + AppConstants.DB_COLUMN_TARGET_SIZE + " varchar not null," + AppConstants.DB_COLUMN_CURR_POS +
-            " varchar not null," + AppConstants.DB_COLUMN_TARGET_PATH + " text)";
+    public static final String DB_NAME = "download.db";
+    public static final String TABLE_NAME = "download_info";
+    public static int DB_VERSION = 2;
+    static final String DATABASE_CREATE_STATEMENT = "CREATE TABLE IF NOT EXISTS " +
+            TABLE_NAME + "(" +
+            AppConstants.DB_COLUMN_ID + " integer primary key autoincrement, " +
+            AppConstants.DB_COLUMN_TARGET_ID + " varchar not null, " +
+            AppConstants.DB_COLUMN_TARGET_NAME + " varchar not null, " +
+            AppConstants.DB_COLUMN_DOWNLOAD_URL + " varchar, " +
+            AppConstants.DB_COLUMN_TARGET_SIZE + " integer, " +
+            AppConstants.DB_COLUMN_CURR_POS + " integer, " +
+            AppConstants.DB_COLUMN_TARGET_PATH + " char " +
+            ")";
+    static final String DATABASE_UPGRADE_STATEMENT = "DROP TABLE IF EXISTS " + DB_NAME;
 
     public DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -33,6 +42,7 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         LogUtils.e(TAG, "onUpgrade");
+        db.execSQL(DATABASE_UPGRADE_STATEMENT);
     }
 
 

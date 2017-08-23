@@ -36,6 +36,7 @@ public class DownloadTask implements Runnable {
      * 处理下载暂停
      */
     public void onDownloadPause() {//暂停时调用此方法
+        Log.d(TAG,"onDownloadPause 将下载信息存储到数据库");
         DBManager.getInstance(DownloaderManager.getContext()).addDownloadInfo(downloadInfo);//将下载信息存储到数据库中
     }
 
@@ -88,7 +89,7 @@ public class DownloadTask implements Runnable {
             }
             connection.connect();
 
-            RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
+            RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rwd");
             randomAccessFile.seek(startPos);
             InputStream is = null;
             if (connection.getResponseCode() == 206) {
