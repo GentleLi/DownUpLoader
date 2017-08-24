@@ -2,13 +2,13 @@ package com.gentler.downuploader.manager;
 
 
 import android.content.Context;
+import android.text.TextUtils;
 
+import com.gentler.downuploader.base.BaseDownloaderObserver;
 import com.gentler.downuploader.config.DownloadState;
 import com.gentler.downuploader.model.DownloadInfo;
 import com.gentler.downuploader.task.DownloadTask;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -16,10 +16,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 
 public class DownloaderManager {
-
+    private static final String TAG=DownloaderManager.class.getSimpleName();
     private static DownloaderManager mDownloaderManager;
     private static Context mContext;
-    private List<DownloaderObserver> mDownloaderObservers = new ArrayList<>();
+    private ConcurrentHashMap<String,BaseDownloaderObserver> mDownloaderObservers=new ConcurrentHashMap<>();
     private static ConcurrentHashMap<String,DownloadInfo> mDownloadInfoMap;
     private static ConcurrentHashMap<String,DownloadTask> mDownloadTaskMap;
     static{
@@ -74,34 +74,93 @@ public class DownloaderManager {
         }
     }
 
-    public interface DownloaderObserver {
 
-        void onDownloadStateChanged(DownloadInfo downloadInfo);
 
-        void onDownloadProgressChanged(DownloadInfo downloadInfo);
-    }
-
-    public void registerObserver(DownloaderObserver observer) {
+    public void registerObserver(BaseDownloaderObserver observer) {
         if (observer != null && !mDownloaderObservers.contains(observer)) {
-            mDownloaderObservers.add(observer);
+            mDownloaderObservers.put(observer.getId(),observer);
         }
     }
 
-    public void unregisterObserver(DownloaderObserver observer) {
+    public void unregisterObserver(BaseDownloaderObserver observer) {
         if (observer != null && mDownloaderObservers.contains(observer)) {
             mDownloaderObservers.remove(observer);
         }
     }
 
-    public void notifyDownloadStateChanged(DownloadInfo downloadInfo) {
-        for (DownloaderObserver observer : mDownloaderObservers) {
-            observer.onDownloadStateChanged(downloadInfo);
+    public void unregisterObserver(String targetId){
+        if (TextUtils.isEmpty(targetId))return;
+        mDownloaderObservers.remove(targetId);
+    }
+
+    public void notifyDownloadPause(DownloadInfo downloadInfo) {
+//        mDownloaderObservers.keySet().forEach((String key)->{
+//            if (downloadInfo.getId().equals(key)){
+//                BaseDownloaderObserver observer=mDownloaderObservers.get(key);
+//                observer.onDownloadPause(downloadInfo);
+//            }
+//        });
+        for(String key:mDownloaderObservers.keySet()){
+            if (downloadInfo.getId().equals(key)){
+                BaseDownloaderObserver observer=mDownloaderObservers.get(key);
+                observer.onDownloadPause(downloadInfo);
+            }
         }
     }
 
+    public void notifyDownloadSuccess(DownloadInfo downloadInfo){
+        if (null==downloadInfo){
+            throw new NullPointerException("Oops! downloadInfo is null");
+        }
+//        mDownloaderObservers.keySet().forEach((String key)->{
+//            if (downloadInfo.getId().equals(key)){
+//                BaseDownloaderObserver observer=mDownloaderObservers.get(key);
+//                observer.onDownloadSuccess(downloadInfo);
+//            }
+//        });
+        for(String key:mDownloaderObservers.keySet()){
+            if (downloadInfo.getId().equals(key)){
+                BaseDownloaderObserver observer=mDownloaderObservers.get(key);
+                observer.onDownloadSuccess(downloadInfo);
+            }
+        }
+    }
+
+    public void notifyDownloadError(DownloadInfo downloadInfo){
+        if (null==downloadInfo){
+            throw new NullPointerException("Oops! downloadInfo is null");
+        }
+//        mDownloaderObservers.keySet().forEach((String key)->{
+//            if (downloadInfo.getId().equals(key)){
+//                BaseDownloaderObserver observer=mDownloaderObservers.get(key);
+//                observer.onDownloadError(downloadInfo);
+//            }
+//        });
+        for(String key:mDownloaderObservers.keySet()){
+            if (downloadInfo.getId().equals(key)){
+                BaseDownloaderObserver observer=mDownloaderObservers.get(key);
+                observer.onDownloadError(downloadInfo);
+            }
+        }
+
+    }
+
+
     public void notifyDownloadProgressChanged(DownloadInfo downloadInfo) {
-        for (DownloaderObserver observer : mDownloaderObservers) {
-            observer.onDownloadProgressChanged(downloadInfo);
+        if (null==downloadInfo){
+            throw new NullPointerException("Oops! downloadInfo is null");
+        }
+//        mDownloaderObservers.keySet().forEach((String key)->{
+//            if (downloadInfo.getId().equals(key)){
+//                BaseDownloaderObserver observer=mDownloaderObservers.get(key);
+//                observer.onDownloadProgressChanged(downloadInfo);
+//            }
+//        });
+        for(String key:mDownloaderObservers.keySet()){
+            if (downloadInfo.getId().equals(key)){
+                BaseDownloaderObserver observer=mDownloaderObservers.get(key);
+                observer.onDownloadProgressChanged(downloadInfo);
+            }
         }
     }
 

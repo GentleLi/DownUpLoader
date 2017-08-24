@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.gentler.downuploader.config.AppConstants;
@@ -52,8 +53,8 @@ public class DBManager {
             values.put(AppConstants.DB_COLUMN_CURR_POS, downloadInfo.getCurrPos());
             values.put(AppConstants.DB_COLUMN_DOWNLOAD_URL, downloadInfo.getDownloadUrl());
             values.put(AppConstants.DB_COLUMN_TARGET_SIZE, downloadInfo.getSize());
-            values.put(AppConstants.DB_COLUMN_TARGET_PATH, downloadInfo.getPath());
-            long rowId = db.insert(DBHelper.TABLE_NAME, AppConstants.DB_COLUMN_TARGET_PATH, values);
+            values.put(AppConstants.DB_COLUMN_TARGET_DIR, downloadInfo.getDir());
+            long rowId = db.insert(DBHelper.TABLE_NAME, AppConstants.DB_COLUMN_TARGET_DIR, values);
             Log.d(TAG, "rowId:" + rowId);
             if (rowId == -1) {
                 LogUtils.i(TAG, "插入失败");
@@ -77,9 +78,9 @@ public class DBManager {
                         AppConstants.DB_COLUMN_CURR_POS + ", " +
                         AppConstants.DB_COLUMN_DOWNLOAD_URL + ", " +
                         AppConstants.DB_COLUMN_TARGET_SIZE + ", " +
-                        AppConstants.DB_COLUMN_TARGET_PATH + ") values (?,?,?,?,?,?)",
+                        AppConstants.DB_COLUMN_TARGET_DIR + ") values (?,?,?,?,?,?)",
                 new Object[]{info.getName(), info.getId(), info.getCurrPos(), info.getDownloadUrl(),
-                        info.getSize(), info.getPath()});
+                        info.getSize(), info.getDir()});
         db.close();
     }
 
@@ -124,6 +125,38 @@ public class DBManager {
         }
     }
 
+    /**
+     * 数据库中是否已经存在此数据
+     *
+     * @param downloadInfo
+     * @return
+     */
+    public boolean has(DownloadInfo downloadInfo) {
+        if (null == downloadInfo) {
+            throw new NullPointerException("Oops! downloadInfo is null");
+        }
+        return has(downloadInfo.getId());
+    }
+
+    /**
+     * 是否已经存在此数据
+     *
+     * @param id
+     * @return
+     */
+    public boolean has(String id) {
+        if (TextUtils.isEmpty(id)) {
+            return false;
+        }
+        LogUtils.d(TAG, "find");
+        SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
+        Cursor cursor = db.query(DBHelper.TABLE_NAME, null, AppConstants.DB_COLUMN_TARGET_ID + " = ?", new String[]{id}, null, null, null);
+        if (null != cursor && cursor.moveToNext()) {
+            return true;
+        }
+        return false;
+    }
+
     public DownloadInfo find(String id) {
         DownloadInfo downloadInfo = null;
         LogUtils.d(TAG, "find");
@@ -155,9 +188,9 @@ public class DBManager {
                                 String name = cursor.getString(cursor.getColumnIndex(AppConstants.DB_COLUMN_TARGET_NAME));
                                 downloadInfo.setName(name);
                                 break;
-                            case AppConstants.DB_COLUMN_TARGET_PATH:
-                                String path = cursor.getString(cursor.getColumnIndex(AppConstants.DB_COLUMN_TARGET_PATH));
-                                downloadInfo.setPath(path);
+                            case AppConstants.DB_COLUMN_TARGET_DIR:
+                                String path = cursor.getString(cursor.getColumnIndex(AppConstants.DB_COLUMN_TARGET_DIR));
+                                downloadInfo.setDir(path);
                                 break;
                             case AppConstants.DB_COLUMN_TARGET_SIZE:
                                 long size = cursor.getLong(cursor.getColumnIndex(AppConstants.DB_COLUMN_TARGET_SIZE));
@@ -204,6 +237,30 @@ public class DBManager {
     }
 
     /**
+     * 清空表
+     */
+    public void clearTable() {
+        LogUtils.d(TAG, "remove");
+        SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
+        try {
+            db.beginTransaction();
+            int results = db.delete(DBHelper.TABLE_NAME, null, null);
+            if (results == 0) {//说明没有删除数据（数据库中不存在此数据或者 删除过程出现问题而失败）
+                LogUtils.d(TAG, "删除失败");
+            } else {//删除了多少行
+                LogUtils.d(TAG, "删除成功");
+                db.setTransactionSuccessful();//设置事务的标志为true，表示这次操作成功
+                //事务的提交或回滚是由事务的标志决定的,如果事务的标志为True，事务就会提交，否侧回滚,默认情况下事务的标志为False
+            }
+        } catch (SQLiteException e) {
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+            db.close();
+        }
+    }
+
+    /**
      * 更新数据
      *
      * @param downloadInfo
@@ -218,7 +275,7 @@ public class DBManager {
             values.put(AppConstants.DB_COLUMN_CURR_POS, downloadInfo.getCurrPos());
             values.put(AppConstants.DB_COLUMN_DOWNLOAD_URL, downloadInfo.getDownloadUrl());
             values.put(AppConstants.DB_COLUMN_TARGET_SIZE, downloadInfo.getSize());
-            values.put(AppConstants.DB_COLUMN_TARGET_PATH, downloadInfo.getPath());
+            values.put(AppConstants.DB_COLUMN_TARGET_DIR, downloadInfo.getDir());
             int results = db.update(DBHelper.TABLE_NAME, values, AppConstants.DB_COLUMN_TARGET_ID + "= ?", new String[]{downloadInfo.getId()});
             LogUtils.d(TAG, "results:" + results);
             if (results == 0) {//说明没有删除数据（数据库中不存在此数据或者 删除过程出现问题而失败）

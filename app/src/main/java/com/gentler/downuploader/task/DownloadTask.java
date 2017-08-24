@@ -3,10 +3,11 @@ package com.gentler.downuploader.task;
 import android.util.Log;
 
 import com.gentler.downuploader.config.DownloadState;
-import com.gentler.downuploader.config.Storage;
 import com.gentler.downuploader.database.DBManager;
 import com.gentler.downuploader.manager.DownloaderManager;
+import com.gentler.downuploader.manager.ThreadPoolManager;
 import com.gentler.downuploader.model.DownloadInfo;
+import com.gentler.downuploader.utils.LogUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,21 +38,25 @@ public class DownloadTask implements Runnable {
      */
     public void onDownloadPause() {//暂停时调用此方法
         Log.d(TAG,"onDownloadPause 将下载信息存储到数据库");
+        if (DBManager.getInstance(DownloaderManager.getContext()).has(downloadInfo)){
+            DBManager.getInstance(DownloaderManager.getContext()).remove(downloadInfo.getId());
+        }
         DBManager.getInstance(DownloaderManager.getContext()).addDownloadInfo(downloadInfo);//将下载信息存储到数据库中
+        ThreadPoolManager.getInstance().remove(this);
     }
 
     /**
      * 处理下载失败
      */
     public void onDownloadError() {//TODO 删除掉本地的资源
-        DownloaderManager.getInstance().notifyDownloadStateChanged(downloadInfo);
+        DownloaderManager.getInstance().notifyDownloadError(downloadInfo);
         DownloaderManager.getInstance().removeSingleDownloadTask(downloadInfo);
 
     }
 
     @Override
     public void run() {
-        File fileDir = new File(Storage.DOWNLOAD_DIR);
+        File fileDir = new File(downloadInfo.getDir());
         if (!fileDir.exists()) {
             fileDir.mkdirs();
         }
@@ -60,6 +65,7 @@ public class DownloadTask implements Runnable {
         Log.e(TAG, "downloadInfo.getCurrPos():" + downloadInfo.getCurrPos());
         try {
             if (file.exists()) {//文件存在
+                LogUtils.d(TAG,"file.length():"+file.length());
                 if (file.length() != downloadInfo.getCurrPos()) {//如果文件不存在 或者文件长度为0 或者文件的长度与当前标记的下载长度不相等 则删除文件重新下载
                     file.delete();
                     file.createNewFile();
@@ -101,15 +107,15 @@ public class DownloadTask implements Runnable {
                     downloadInfo.setCurrPos(downloadInfo.getCurrPos() + count);
                     DownloaderManager.getInstance().notifyDownloadProgressChanged(downloadInfo);
                     //下载过程中判断下载的状态 如果下载暂停 将下载信息存储到数据库中
-                    if (file.length() == downloadInfo.getSize()) {
+                    if (downloadInfo.getCurrPos() == downloadInfo.getSize()) {
                         downloadInfo.setCurrState(DownloadState.SUCCESS);
-                        DownloaderManager.getInstance().notifyDownloadStateChanged(downloadInfo);
+                        DownloaderManager.getInstance().notifyDownloadSuccess(downloadInfo);
                         DownloaderManager.getInstance().removeSingleDownloadTask(downloadInfo);//移除下载任务
                     }
                 }
                 if (downloadInfo.getCurrState() == DownloadState.PAUSE) {//暂停中
                     downloadInfo.setCurrState(DownloadState.PAUSE);
-                    DownloaderManager.getInstance().notifyDownloadStateChanged(downloadInfo);
+                    DownloaderManager.getInstance().notifyDownloadPause(downloadInfo);
                     onDownloadPause();
                 } else if (downloadInfo.getCurrState() == DownloadState.ERROR) {//下载失败
                     onDownloadError();

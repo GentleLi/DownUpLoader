@@ -19,13 +19,13 @@ public class DBHelper extends SQLiteOpenHelper {
     public static int DB_VERSION = 2;
     static final String DATABASE_CREATE_STATEMENT = "CREATE TABLE IF NOT EXISTS " +
             TABLE_NAME + "(" +
-            AppConstants.DB_COLUMN_ID + " integer primary key autoincrement, " +
-            AppConstants.DB_COLUMN_TARGET_ID + " varchar not null, " +
-            AppConstants.DB_COLUMN_TARGET_NAME + " varchar not null, " +
-            AppConstants.DB_COLUMN_DOWNLOAD_URL + " varchar, " +
-            AppConstants.DB_COLUMN_TARGET_SIZE + " integer, " +
-            AppConstants.DB_COLUMN_CURR_POS + " integer, " +
-            AppConstants.DB_COLUMN_TARGET_PATH + " char " +
+            AppConstants.DB_COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            AppConstants.DB_COLUMN_TARGET_ID + " VARCHAR NOT NULL, " +
+            AppConstants.DB_COLUMN_TARGET_NAME + " VARCHAR NOT NULL UNIQUE, " +
+            AppConstants.DB_COLUMN_DOWNLOAD_URL + " VARCHAR, " +
+            AppConstants.DB_COLUMN_TARGET_SIZE + " INTEGER, " +
+            AppConstants.DB_COLUMN_CURR_POS + " INTEGER, " +
+            AppConstants.DB_COLUMN_TARGET_DIR + " CHAR " +
             ")";
     static final String DATABASE_UPGRADE_STATEMENT = "DROP TABLE IF EXISTS " + DB_NAME;
 
