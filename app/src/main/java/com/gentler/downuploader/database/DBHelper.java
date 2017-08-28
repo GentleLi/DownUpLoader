@@ -16,7 +16,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String TAG = DBHelper.class.getSimpleName();
     public static final String DB_NAME = "download.db";
     public static final String TABLE_NAME = "download_info";
-    public static int DB_VERSION = 2;
+    public static int DB_VERSION = 1;
     static final String DATABASE_CREATE_STATEMENT = "CREATE TABLE IF NOT EXISTS " +
             TABLE_NAME + "(" +
             AppConstants.DB_COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -43,6 +43,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         LogUtils.e(TAG, "onUpgrade");
         db.execSQL(DATABASE_UPGRADE_STATEMENT);
+        db.execSQL(DATABASE_CREATE_STATEMENT);
     }
 
 

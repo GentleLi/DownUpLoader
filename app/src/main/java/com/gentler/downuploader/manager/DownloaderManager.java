@@ -175,4 +175,8 @@ public class DownloaderManager {
         mDownloadTaskMap.put(downloadInfo.getId(),downloadTask);
     }
 
+    public boolean isTargetExists(String targetId){
+        return mDownloadInfoMap.containsKey(targetId);
+    }
+
 }

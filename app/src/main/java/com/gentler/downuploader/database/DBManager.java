@@ -54,7 +54,7 @@ public class DBManager {
             values.put(AppConstants.DB_COLUMN_DOWNLOAD_URL, downloadInfo.getDownloadUrl());
             values.put(AppConstants.DB_COLUMN_TARGET_SIZE, downloadInfo.getSize());
             values.put(AppConstants.DB_COLUMN_TARGET_DIR, downloadInfo.getDir());
-            long rowId = db.insert(DBHelper.TABLE_NAME, AppConstants.DB_COLUMN_TARGET_DIR, values);
+            long rowId = db.insert(DBHelper.TABLE_NAME, null, values);
             Log.d(TAG, "rowId:" + rowId);
             if (rowId == -1) {
                 LogUtils.i(TAG, "插入失败");
@@ -65,8 +65,10 @@ public class DBManager {
         } catch (SQLiteException e) {
             e.printStackTrace();
         } finally {
-            db.endTransaction();
-            db.close();
+            if (null!=db){
+                db.endTransaction();
+                db.close();
+            }
         }
     }
 
@@ -120,8 +122,10 @@ public class DBManager {
         } catch (SQLiteException e) {
             e.printStackTrace();
         } finally {
-            db.endTransaction();
-            db.close();
+            if (null!=db){
+                db.endTransaction();
+                db.close();
+            }
         }
     }
 
@@ -203,7 +207,9 @@ public class DBManager {
         } catch (SQLiteException e) {
             e.printStackTrace();
         } finally {
-            db.close();
+            if (null!=db){
+                db.close();
+            }
         }
         return downloadInfo;
     }
@@ -231,8 +237,10 @@ public class DBManager {
         } catch (SQLiteException e) {
             e.printStackTrace();
         } finally {
-            db.endTransaction();
-            db.close();
+            if (null!=db){
+                db.endTransaction();
+                db.close();
+            }
         }
     }
 

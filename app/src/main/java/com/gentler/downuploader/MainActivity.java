@@ -51,18 +51,22 @@ public class MainActivity extends AppCompatActivity {
     @NeedsPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     @OnClick(R.id.btn_start)
     public void onClickDownload(View view) {
-        mTargetId = "gift-19";
+        mTargetId = "gift-01";
         mDownloadInfo = DBManager.getInstance(mContext).find(mTargetId);
         if (null == mDownloadInfo) {
             mDownloadInfo = new DownloadInfo();
             mDownloadInfo.setId(mTargetId);
             mDownloadInfo.setCurrPos(0);
-            mDownloadInfo.setSize(13462118);
-            mDownloadInfo.setName("gift-19");
+            mDownloadInfo.setSize(79790722);
+            mDownloadInfo.setName("ali.apk");
             mDownloadInfo.setDir(Storage.DOWNLOAD_DIR);
 //        downloadInfo.setDownloadUrl("http://resource.peppertv.cn/gift/meteor_3d416423dbca1a0940fc3d8ac81f9410_2559755.zip");
-            mDownloadInfo.setDownloadUrl("http://192.168.1.105:8080/AdobePatcher.zip");
+            mDownloadInfo.setDownloadUrl("http://192.168.1.105:8080/ali.apk");
         }
+//        if (DownloaderManager.getInstance().isTargetExists(mTargetId)){
+//            Toast.makeText(mContext, "下载目标已经存在于任务列表！", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
         DownloaderManager.getInstance().download(mDownloadInfo);
         DownloaderManager.getInstance().registerObserver(new SimpleDownloaderObserver(mDownloadInfo.getId()) {
             @Override
