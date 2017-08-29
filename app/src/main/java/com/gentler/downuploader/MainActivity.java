@@ -11,8 +11,12 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.gentler.downuploader.config.Storage;
+import com.gentler.downuploader.database.DBManager;
+import com.gentler.downuploader.impl.SimpleDownloaderObserver;
 import com.gentler.downuploader.manager.DownloaderManager;
 import com.gentler.downuploader.model.DownloadInfo;
+import com.gentler.downuploader.utils.LogUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,11 +38,12 @@ public class MainActivity extends AppCompatActivity {
     ProgressBar mProgressBar;
     private Context mContext;
     private DownloadInfo mDownloadInfo;
+    private String mTargetId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mContext=getApplicationContext();
+        mContext = getApplicationContext();
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
     }
@@ -46,35 +51,59 @@ public class MainActivity extends AppCompatActivity {
     @NeedsPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     @OnClick(R.id.btn_start)
     public void onClickDownload(View view) {
-        mDownloadInfo = new DownloadInfo();
-        mDownloadInfo.setId("download_01");
-        mDownloadInfo.setCurrPos(0);
-        mDownloadInfo.setSize(106173675);
-        mDownloadInfo.setName("Python学习手册(第4版).pdf");
-        mDownloadInfo.setDownloadUrl("http://192.168.1.6:8080/PythonLearning.pdf.zip");
 //        mDownloadInfo.setDownloadUrl("http://192.168.1.105:8080/AdobePatcher.zip");
+
+
+        mTargetId = "download_01";
+        mDownloadInfo = DBManager.getInstance(mContext).find(mTargetId);
+        if (null == mDownloadInfo) {
+            mDownloadInfo = new DownloadInfo();
+            mDownloadInfo.setId("download_01");
+            mDownloadInfo.setCurrPos(0);
+            mDownloadInfo.setSize(106173675);
+            mDownloadInfo.setName("Python学习手册(第4版).pdf");
+            mDownloadInfo.setDownloadUrl("http://192.168.1.6:8080/PythonLearning.pdf.zip");
+            mDownloadInfo.setDir(Storage.DOWNLOAD_DIR);
+//        downloadInfo.setDownloadUrl("http://resource.peppertv.cn/gift/meteor_3d416423dbca1a0940fc3d8ac81f9410_2559755.zip");
+        }
+//        if (DownloaderManager.getInstance().isTargetExists(mTargetId)){
+//            Toast.makeText(mContext, "下载目标已经存在于任务列表！", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
         DownloaderManager.getInstance().download(mDownloadInfo);
-        DownloaderManager.getInstance().registerObserver(new DownloaderManager.DownloaderObserver() {
+        DownloaderManager.getInstance().registerObserver(new SimpleDownloaderObserver(mDownloadInfo.getId()) {
             @Override
-            public void onDownloadStateChanged(DownloadInfo downloadInfo) {//下载状态发生改变
-                Log.e(TAG,"onDownloadStateChanged downloadInfo.getCurrState()："+downloadInfo.getCurrState());
+            public void onDownloadPause(DownloadInfo downloadInfo) {
+                super.onDownloadPause(downloadInfo);
+                Log.e(TAG, "onDownloadPause downloadInfo.getCurrState()：" + downloadInfo.getCurrState());
+
             }
 
             @Override
             public void onDownloadProgressChanged(DownloadInfo downloadInfo) {
-                Log.e(TAG,"当前下载："+downloadInfo.getCurrPos());
-                mProgressBar.setProgress((int) (downloadInfo.getCurrPos()*1000/downloadInfo.getSize()));
+                super.onDownloadProgressChanged(downloadInfo);
+                Log.e(TAG, "当前下载：" + downloadInfo.getCurrPos());
+                mProgressBar.setProgress((int) (downloadInfo.getCurrPos() * 1000 / downloadInfo.getSize()));
+            }
+
+            @Override
+            public void onDownloadSuccess(DownloadInfo downloadInfo) {
+                LogUtils.d("onDownloadSuccess:" + downloadInfo.getName()+" 下载成功");
+            }
+
+            @Override
+            public void onDownloadError(DownloadInfo downloadInfo) {
+
+                LogUtils.d("onDownloadError:" + downloadInfo.getName()+" 下载失败");
             }
         });
 
     }
 
     @OnClick(R.id.btn_pause)
-    public void onClickPause(View view){
+    public void onClickPause(View view) {
         DownloaderManager.getInstance().pause(mDownloadInfo);
     }
-
-
 
 
     @OnShowRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)

@@ -14,7 +14,7 @@ public class DownloadInfo {
     private long size;
     private long currPos;
     private int currState= DownloadState.IDLE;//当前未下载状态 初始化状态
-    private String path;
+    private String dir;//表示当前下载文件的文件夹
 
     public String getId() {
         return id;
@@ -64,12 +64,12 @@ public class DownloadInfo {
         this.currState = currState;
     }
 
-    public String getPath() {
-        return path;
+    public String getDir() {
+        return dir;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public void setDir(String dir) {
+        this.dir = dir;
     }
 
     @Override
@@ -81,7 +81,7 @@ public class DownloadInfo {
                 ", size=" + size +
                 ", currPos=" + currPos +
                 ", currState=" + currState +
-                ", path='" + path + '\'' +
+                ", dir='" + dir + '\'' +
                 '}';
     }
 }
