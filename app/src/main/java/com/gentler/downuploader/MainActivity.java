@@ -47,12 +47,12 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.btn_start)
     public void onClickDownload(View view) {
         mDownloadInfo = new DownloadInfo();
-        mDownloadInfo.setId("gift-19");
+        mDownloadInfo.setId("download_01");
         mDownloadInfo.setCurrPos(0);
-        mDownloadInfo.setSize(13462118);
-        mDownloadInfo.setName("gift-19");
-//        downloadInfo.setDownloadUrl("http://resource.peppertv.cn/gift/meteor_3d416423dbca1a0940fc3d8ac81f9410_2559755.zip");
-        mDownloadInfo.setDownloadUrl("http://192.168.1.105:8080/AdobePatcher.zip");
+        mDownloadInfo.setSize(106173675);
+        mDownloadInfo.setName("Python学习手册(第4版).pdf");
+        mDownloadInfo.setDownloadUrl("http://192.168.1.6:8080/PythonLearning.pdf.zip");
+//        mDownloadInfo.setDownloadUrl("http://192.168.1.105:8080/AdobePatcher.zip");
         DownloaderManager.getInstance().download(mDownloadInfo);
         DownloaderManager.getInstance().registerObserver(new DownloaderManager.DownloaderObserver() {
             @Override

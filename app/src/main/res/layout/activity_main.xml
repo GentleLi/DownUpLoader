@@ -14,7 +14,7 @@
         android:max="1000"
         android:maxHeight="48dp"
         android:minHeight="48dp"
-        android:progress="300" />
+        android:progress="0" />
 
     <LinearLayout
         android:layout_width="wrap_content"
