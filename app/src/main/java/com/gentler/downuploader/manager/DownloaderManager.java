@@ -69,8 +69,8 @@ public class DownloaderManager {
      */
     public void removeSingleDownloadTask(DownloadInfo downloadInfo){
         if (null==downloadInfo||null==mDownloadInfoMap)return;
-        if (mDownloadInfoMap.contains(downloadInfo.getId())){
-            mDownloadInfoMap.remove(downloadInfo.getId());
+        if (mDownloadTaskMap.contains(downloadInfo.getId())){
+            mDownloadTaskMap.remove(downloadInfo.getId());
         }
     }
 
