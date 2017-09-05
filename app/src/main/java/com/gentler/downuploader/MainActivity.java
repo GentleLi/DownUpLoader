@@ -54,24 +54,25 @@ public class MainActivity extends AppCompatActivity {
 //        mDownloadInfo.setDownloadUrl("http://192.168.1.105:8080/AdobePatcher.zip");
 
 
-        mTargetId = "download_01";
+        mTargetId = "download_02";
         mDownloadInfo = DBManager.getInstance(mContext).find(mTargetId);
         if (null == mDownloadInfo) {
             mDownloadInfo = new DownloadInfo();
-            mDownloadInfo.setId("download_01");
+            mDownloadInfo.setId("download_02");
             mDownloadInfo.setCurrPos(0);
-            mDownloadInfo.setSize(106173675);
-            mDownloadInfo.setName("Python学习手册(第4版).pdf");
-            mDownloadInfo.setDownloadUrl("http://192.168.1.6:8080/PythonLearning.pdf.zip");
+            mDownloadInfo.setSize(3053621);
+            mDownloadInfo.setName("GSMAlarm.apk");
+            mDownloadInfo.setDownloadUrl("http://192.168.1.7:8080/GSMAlarm.apk");
             mDownloadInfo.setDir(Storage.DOWNLOAD_DIR);
 //        downloadInfo.setDownloadUrl("http://resource.peppertv.cn/gift/meteor_3d416423dbca1a0940fc3d8ac81f9410_2559755.zip");
         }
-//        if (DownloaderManager.getInstance().isTargetExists(mTargetId)){
-//            Toast.makeText(mContext, "下载目标已经存在于任务列表！", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-        DownloaderManager.getInstance().download(mDownloadInfo);
-        DownloaderManager.getInstance().registerObserver(new SimpleDownloaderObserver(mDownloadInfo.getId()) {
+
+        if (DownloaderManager.getInstance().isTargetDownloading(mTargetId)){
+            Toast.makeText(mContext, "下载目标已经存在于任务列表！", Toast.LENGTH_SHORT).show();
+            LogUtils.d(TAG,"当前任务正在下载！");
+            return;
+        }
+        mDownloaderObserver=new SimpleDownloaderObserver(mDownloadInfo.getId()) {
             @Override
             public void onDownloadPause(DownloadInfo downloadInfo) {
                 super.onDownloadPause(downloadInfo);
@@ -93,12 +94,17 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onDownloadError(DownloadInfo downloadInfo) {
-
+                DownloaderManager.getInstance().unregisterObserver(this);
                 LogUtils.d("onDownloadError:" + downloadInfo.getName()+" 下载失败");
             }
-        });
+        };
+        DownloaderManager.getInstance().download(mDownloadInfo);
+        DownloaderManager.getInstance().registerObserver(mDownloaderObserver);
 
     }
+
+
+    private SimpleDownloaderObserver mDownloaderObserver;
 
     @OnClick(R.id.btn_pause)
     public void onClickPause(View view) {
