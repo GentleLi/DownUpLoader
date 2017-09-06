@@ -191,19 +191,21 @@ public class DownloaderManager {
         return mDownloadInfoMap.containsKey(targetId);
     }
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 73da61e034532697242f63cf9e4002b5877adb3e
     public boolean isTargetDownloading(String targetId){
         return mDownloadTaskMap.containsKey(targetId);
     }
 
-<<<<<<< HEAD
-    public DownloadInfo getDownloadingTarget(String targetId){//获取当前正在下载的DownloadInfo
-        return mDownloadInfoMap.get(targetId);
+    /**
+     * 重下载队列中获取下载信息类
+     * @param targetId
+     * @return
+     */
+    public DownloadInfo getTarget(String targetId){
+        if (TextUtils.isEmpty(targetId)||null==mDownloadInfoMap){
+            return null;
+        }else{
+           return mDownloadInfoMap.get(targetId);
+        }
     }
 
-=======
->>>>>>> 73da61e034532697242f63cf9e4002b5877adb3e
 }
