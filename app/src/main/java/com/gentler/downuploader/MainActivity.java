@@ -49,15 +49,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         mTargetId = "download_ali";
-        if (DownloaderManager.getInstance().isTargetDownloading(mTargetId)){
-            Log.e(TAG,"从下载队列中获取");
-            mDownloadInfo=DownloaderManager.getInstance().getDownloadingTarget(mTargetId);
-        }else{
-            Log.e(TAG,"从数据库中获取");
+        if (DownloaderManager.getInstance().isTargetDownloading(mTargetId)) {
+            Log.e(TAG, "从下载队列中获取");
+            mDownloadInfo = DownloaderManager.getInstance().getDownloadingTarget(mTargetId);
+        } else {
+            Log.e(TAG, "从数据库中获取");
             mDownloadInfo = DBManager.getInstance(mContext).find(mTargetId);
         }
         if (null == mDownloadInfo) {
-            Log.e(TAG,"新建下载任务");
+            Log.e(TAG, "新建下载任务");
             mDownloadInfo = new DownloadInfo();
             mDownloadInfo.setId("download_ali");
             mDownloadInfo.setCurrPos(0);
@@ -66,8 +66,7 @@ public class MainActivity extends AppCompatActivity {
             mDownloadInfo.setName("ali.apk");
             mDownloadInfo.setDownloadUrl("http://192.168.1.105:8080/ali.apk");
             mDownloadInfo.setDir(Storage.DOWNLOAD_DIR);
-//        downloadInfo.setDownloadUrl("http://resource.peppertv.cn/gift/meteor_3d416423dbca1a0940fc3d8ac81f9410_2559755.zip");
-        }else{
+        } else {
             mProgressBar.setProgress((int) (mDownloadInfo.getCurrPos() * 1000 / mDownloadInfo.getSize()));
         }
     }
@@ -75,48 +74,60 @@ public class MainActivity extends AppCompatActivity {
     @NeedsPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     @OnClick(R.id.btn_start)
     public void onClickDownload(View view) {
-        if (DownloaderManager.getInstance().isTargetDownloading(mTargetId)){//如果任务正在下载则不用重复下载
-            Log.e(TAG,"从下载队列中获取");
-            mDownloadInfo=DownloaderManager.getInstance().getDownloadingTarget(mTargetId);
-            LogUtils.d(TAG,"mDownloadInfo.toString():"+mDownloadInfo.toString());
+        if (DownloaderManager.getInstance().isTargetDownloading(mTargetId)) {//如果任务正在下载则不用重复下载
+            Log.e(TAG, "从下载队列中获取");
+            mDownloadInfo = DownloaderManager.getInstance().getDownloadingTarget(mTargetId);
+            LogUtils.d(TAG, "mDownloadInfo.toString():" + mDownloadInfo.toString());
+        } else {
+            mTargetId = "download_02";
+            mDownloadInfo = DBManager.getInstance(mContext).find(mTargetId);
+            if (null == mDownloadInfo) {
+                mDownloadInfo = new DownloadInfo();
+                mDownloadInfo.setId("download_02");
+                mDownloadInfo.setCurrPos(0);
+                mDownloadInfo.setSize(3053621);
+                mDownloadInfo.setName("GSMAlarm.apk");
+                mDownloadInfo.setDownloadUrl("http://192.168.1.7:8080/GSMAlarm.apk");
+                mDownloadInfo.setDir(Storage.DOWNLOAD_DIR);
+            }
+            if (DownloaderManager.getInstance().isTargetDownloading(mTargetId)) {
+                Toast.makeText(mContext, "下载目标已经存在于任务列表！", Toast.LENGTH_SHORT).show();
+                LogUtils.d(TAG, "当前任务正在下载！");
+                return;
+            }
 
+            mDownloadObserver = new SimpleDownloaderObserver(mDownloadInfo.getId()) {
+                @Override
+                public void onDownloadPause(DownloadInfo downloadInfo) {
+                    super.onDownloadPause(downloadInfo);
+                    Log.e(TAG, "onDownloadPause downloadInfo.getCurrState()：" + downloadInfo.getCurrState());
 
-        }else{
+                }
 
+                @Override
+                public void onDownloadProgressChanged(DownloadInfo downloadInfo) {
+                    super.onDownloadProgressChanged(downloadInfo);
+                    Log.e(TAG, "当前下载：" + downloadInfo.getCurrPos());
+                    mProgressBar.setProgress((int) (downloadInfo.getCurrPos() * 1000 / downloadInfo.getSize()));
+                }
 
+                @Override
+                public void onDownloadSuccess(DownloadInfo downloadInfo) {
+                    LogUtils.d("onDownloadSuccess:" + downloadInfo.getName() + " 下载成功");
+                }
+
+                @Override
+                public void onDownloadError(DownloadInfo downloadInfo) {
+                    DownloaderManager.getInstance().unregisterObserver(this);
+                    LogUtils.d("onDownloadError:" + downloadInfo.getName() + " 下载失败");
+                }
+            };
+            DownloaderManager.getInstance().download(mDownloadInfo);
+            DownloaderManager.getInstance().registerObserver(mDownloadObserver);
         }
-//        mDownloadInfo.setDownloadUrl("http://192.168.1.105:8080/AdobePatcher.zip");
-        DownloaderManager.getInstance().download(mDownloadInfo);
-
-        DownloaderManager.getInstance().registerObserver(mDownloadObserver);
     }
 
-    private SimpleDownloaderObserver mDownloadObserver=new SimpleDownloaderObserver(mDownloadInfo.getId()) {
-        @Override
-        public void onDownloadPause(DownloadInfo downloadInfo) {
-            super.onDownloadPause(downloadInfo);
-            Log.e(TAG, "onDownloadPause downloadInfo.getCurrState()：" + downloadInfo.getCurrState());
-
-        }
-
-        @Override
-        public void onDownloadProgressChanged(DownloadInfo downloadInfo) {
-            super.onDownloadProgressChanged(downloadInfo);
-            Log.e(TAG, "当前下载：" + downloadInfo.getCurrPos());
-            mProgressBar.setProgress((int) (downloadInfo.getCurrPos() * 1000 / downloadInfo.getSize()));
-        }
-
-        @Override
-        public void onDownloadSuccess(DownloadInfo downloadInfo) {
-            LogUtils.d("onDownloadSuccess:" + downloadInfo.getName()+" 下载成功");
-        }
-
-        @Override
-        public void onDownloadError(DownloadInfo downloadInfo) {
-            DownloaderManager.getInstance().unregisterObserver(mDownloadObserver);
-            LogUtils.d("onDownloadError:" + downloadInfo.getName()+" 下载失败");
-        }
-    };
+    private SimpleDownloaderObserver mDownloadObserver;
 
     @OnClick(R.id.btn_pause)
     public void onClickPause(View view) {
@@ -145,3 +156,4 @@ public class MainActivity extends AppCompatActivity {
     }
 
 }
+

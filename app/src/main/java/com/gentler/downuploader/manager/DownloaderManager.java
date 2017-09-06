@@ -8,6 +8,7 @@ import com.gentler.downuploader.base.BaseDownloaderObserver;
 import com.gentler.downuploader.config.DownloadState;
 import com.gentler.downuploader.model.DownloadInfo;
 import com.gentler.downuploader.task.DownloadTask;
+import com.gentler.downuploader.utils.LogUtils;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -68,9 +69,14 @@ public class DownloaderManager {
      * @param downloadInfo
      */
     public void removeSingleDownloadTask(DownloadInfo downloadInfo){
+        LogUtils.d(TAG,"removeSingleDownloadTask");
         if (null==downloadInfo||null==mDownloadInfoMap)return;
-        if (mDownloadInfoMap.contains(downloadInfo.getId())){
-            mDownloadInfoMap.remove(downloadInfo.getId());
+        if (mDownloadTaskMap.containsKey(downloadInfo.getId())){
+            DownloadTask downloadTask=mDownloadTaskMap.remove(downloadInfo.getId());
+            LogUtils.d(TAG,"移除成功");
+            if (downloadTask!=null){
+                LogUtils.d(TAG,downloadTask.toString());
+            }
         }
     }
 
@@ -79,12 +85,17 @@ public class DownloaderManager {
     public void registerObserver(BaseDownloaderObserver observer) {
         if (observer != null && !mDownloaderObservers.contains(observer)) {
             mDownloaderObservers.put(observer.getId(),observer);
+            LogUtils.d(TAG,"注册观察者成功！");
         }
     }
 
     public void unregisterObserver(BaseDownloaderObserver observer) {
         if (observer != null && mDownloaderObservers.contains(observer)) {
-            mDownloaderObservers.remove(observer);
+            BaseDownloaderObserver downloaderObserver=mDownloaderObservers.remove(observer);
+            LogUtils.d(TAG,"移除Observer成功！");
+            if (null!=downloaderObserver){
+                LogUtils.d(downloaderObserver);
+            }
         }
     }
 
@@ -180,12 +191,19 @@ public class DownloaderManager {
         return mDownloadInfoMap.containsKey(targetId);
     }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 73da61e034532697242f63cf9e4002b5877adb3e
     public boolean isTargetDownloading(String targetId){
         return mDownloadTaskMap.containsKey(targetId);
     }
 
+<<<<<<< HEAD
     public DownloadInfo getDownloadingTarget(String targetId){//获取当前正在下载的DownloadInfo
         return mDownloadInfoMap.get(targetId);
     }
 
+=======
+>>>>>>> 73da61e034532697242f63cf9e4002b5877adb3e
 }

@@ -52,7 +52,12 @@ public class DownloadTask implements Runnable {
     public void onDownloadError() {//TODO 删除掉本地的资源
         DownloaderManager.getInstance().notifyDownloadError(downloadInfo);
         DownloaderManager.getInstance().removeSingleDownloadTask(downloadInfo);
+<<<<<<< HEAD
         DBManager.getInstance(DownloaderManager.getContext()).update(downloadInfo);//更新数据库，下载出错
+=======
+        DBManager.getInstance(DownloaderManager.getContext()).update(downloadInfo);
+
+>>>>>>> 73da61e034532697242f63cf9e4002b5877adb3e
     }
 
     @Override
