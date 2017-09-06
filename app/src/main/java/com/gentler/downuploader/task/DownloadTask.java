@@ -1,6 +1,6 @@
 package com.gentler.downuploader.task;
 
-import android.app.DownloadManager;
+import android.os.Process;
 import android.util.Log;
 
 import com.gentler.downuploader.config.DownloadState;
@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
-import java.net.SocketException;
 import java.net.URL;
 
 
@@ -53,11 +52,12 @@ public class DownloadTask implements Runnable {
     public void onDownloadError() {//TODO 删除掉本地的资源
         DownloaderManager.getInstance().notifyDownloadError(downloadInfo);
         DownloaderManager.getInstance().removeSingleDownloadTask(downloadInfo);
-
+        DBManager.getInstance(DownloaderManager.getContext()).update(downloadInfo);//更新数据库，下载出错
     }
 
     @Override
     public void run() {
+        Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
         File fileDir = new File(downloadInfo.getDir());
         if (!fileDir.exists()) {
             fileDir.mkdirs();
@@ -68,19 +68,18 @@ public class DownloadTask implements Runnable {
         try {
             if (file.exists()) {//文件存在
                 LogUtils.d(TAG,"file.length():"+file.length());
-                if (file.length() != downloadInfo.getCurrPos()) {//如果文件不存在 或者文件长度为0 或者文件的长度与当前标记的下载长度不相等 则删除文件重新下载
+                if (file.length()==0||file.length() != downloadInfo.getCurrPos()) {//如果文件不存在 或者文件长度为0 或者文件的长度与当前标记的下载长度不相等 则删除文件重新下载
                     file.delete();
                     file.createNewFile();
                     downloadInfo.setCurrPos(0);
                 }
             } else {
+                downloadInfo.setCurrPos(0);//如果文件不存在，则重新将开始位置设为0
                 file.createNewFile();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
         try {
             downloadInfo.setCurrState(DownloadState.DOWNLOADING);
             startPos = downloadInfo.getCurrPos();
@@ -91,13 +90,13 @@ public class DownloadTask implements Runnable {
             connection.setDoInput(true);
             connection.setConnectTimeout(60 * 1000);
             connection.setRequestProperty("Range", "bytes=" + startPos + "-" + downloadInfo.getSize());
-            Log.e(TAG, "connection.getContentLength()==" + connection.getContentLength());
-            Log.e(TAG, "connection.getResponseCode()==" + connection.getResponseCode());
-            stopPos = connection.getContentLength();
-            if (stopPos <= 0) {//下载出错，资源不存在
+            if (stopPos < 0) {//下载出错，资源不存在
                 downloadInfo.setCurrState(DownloadState.ERROR);
             }
             connection.connect();
+            Log.e(TAG, "connection.getContentLength()==" + connection.getContentLength());
+            Log.e(TAG, "connection.getResponseCode()==" + connection.getResponseCode());
+            stopPos = connection.getContentLength();
 
             RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rwd");
             randomAccessFile.seek(startPos);
@@ -106,7 +105,7 @@ public class DownloadTask implements Runnable {
                 is = connection.getInputStream();
                 int count;
                 byte[] buffer = new byte[1024];
-                while ((count = is.read(buffer)) != -1 && (downloadInfo.getCurrState() == DownloadState.DOWNLOADING || downloadInfo.getCurrState() == DownloadState.RESTART)) {//判断当前状态是否是正在下载
+                while ((count = is.read(buffer)) != -1 && (downloadInfo.getCurrState()==DownloadState.IDLE||downloadInfo.getCurrState() == DownloadState.DOWNLOADING || downloadInfo.getCurrState() == DownloadState.RESTART)) {//判断当前状态是否是正在下载
                     randomAccessFile.write(buffer, 0, count);
                     downloadInfo.setCurrPos(downloadInfo.getCurrPos() + count);
                     DownloaderManager.getInstance().notifyDownloadProgressChanged(downloadInfo);
@@ -138,8 +137,9 @@ public class DownloadTask implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
             downloadInfo.setCurrState(DownloadState.ERROR);
-            DownloaderManager.getInstance().notifyDownloadError(downloadInfo);
             onDownloadError();
+        }finally{
+
         }
     }
 

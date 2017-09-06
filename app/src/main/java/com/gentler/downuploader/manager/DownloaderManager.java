@@ -180,4 +180,12 @@ public class DownloaderManager {
         return mDownloadInfoMap.containsKey(targetId);
     }
 
+    public boolean isTargetDownloading(String targetId){
+        return mDownloadTaskMap.containsKey(targetId);
+    }
+
+    public DownloadInfo getDownloadingTarget(String targetId){//获取当前正在下载的DownloadInfo
+        return mDownloadInfoMap.get(targetId);
+    }
+
 }
