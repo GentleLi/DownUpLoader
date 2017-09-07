@@ -18,6 +18,8 @@ import com.gentler.downuploader.manager.DownloaderManager;
 import com.gentler.downuploader.model.DownloadInfo;
 import com.gentler.downuploader.utils.LogUtils;
 
+import java.io.File;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -70,8 +72,18 @@ public class MainActivity extends AppCompatActivity {
         if (DownloaderManager.getInstance().isTargetDownloading(mTargetId)){
             Toast.makeText(mContext, "下载目标已经存在于任务列表！", Toast.LENGTH_SHORT).show();
             LogUtils.d(TAG,"当前任务正在下载！");
+
+
+
             return;
         }
+        generateObserver();
+        DownloaderManager.getInstance().download(mDownloadInfo);
+        DownloaderManager.getInstance().registerObserver(mDownloaderObserver);
+
+    }
+
+    private void generateObserver() {
         mDownloaderObserver=new SimpleDownloaderObserver(mDownloadInfo.getId()) {
             @Override
             public void onDownloadPause(DownloadInfo downloadInfo) {
@@ -90,6 +102,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDownloadSuccess(DownloadInfo downloadInfo) {
                 LogUtils.d("onDownloadSuccess:" + downloadInfo.getName()+" 下载成功");
+
+                File file=new File(downloadInfo.getDir(),downloadInfo.getName());
+                LogUtils.d(TAG,"file.getName():"+file.getName());
+                LogUtils.d(TAG,"file.getAbsolutePath():"+file.getAbsolutePath());
             }
 
             @Override
@@ -98,9 +114,6 @@ public class MainActivity extends AppCompatActivity {
                 LogUtils.d("onDownloadError:" + downloadInfo.getName()+" 下载失败");
             }
         };
-        DownloaderManager.getInstance().download(mDownloadInfo);
-        DownloaderManager.getInstance().registerObserver(mDownloaderObserver);
-
     }
 
 

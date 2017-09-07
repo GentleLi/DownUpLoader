@@ -1,10 +1,10 @@
 package com.gentler.downuploader.task;
 
-import android.app.DownloadManager;
 import android.util.Log;
 
 import com.gentler.downuploader.config.DownloadState;
 import com.gentler.downuploader.database.DBManager;
+import com.gentler.downuploader.helper.DownloadHelper;
 import com.gentler.downuploader.manager.DownloaderManager;
 import com.gentler.downuploader.manager.ThreadPoolManager;
 import com.gentler.downuploader.model.DownloadInfo;
@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
-import java.net.SocketException;
 import java.net.URL;
 
 
@@ -59,12 +58,9 @@ public class DownloadTask implements Runnable {
 
     @Override
     public void run() {
-        File fileDir = new File(downloadInfo.getDir());
-        if (!fileDir.exists()) {
-            fileDir.mkdirs();
-        }
-        File file = new File(fileDir, downloadInfo.getName());//下载存放的文件
-        Log.e(TAG, "file.length():" + file.length());
+        String tempFile=DownloadHelper.getTempFilePath(downloadInfo.getDir(),downloadInfo.getName());
+        File file = new File(tempFile);//下载存放的文件
+
         Log.e(TAG, "downloadInfo.getCurrPos():" + downloadInfo.getCurrPos());
         try {
             if (file.exists()) {//文件存在
@@ -80,7 +76,6 @@ public class DownloadTask implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
 
         try {
             downloadInfo.setCurrState(DownloadState.DOWNLOADING);
@@ -114,6 +109,8 @@ public class DownloadTask implements Runnable {
                     //下载过程中判断下载的状态 如果下载暂停 将下载信息存储到数据库中
                     if (downloadInfo.getCurrPos() == downloadInfo.getSize()) {
                         downloadInfo.setCurrState(DownloadState.SUCCESS);
+                        String oldFilePath=DownloadHelper.getTempFilePath(downloadInfo.getDir(),downloadInfo.getName());
+                        DownloadHelper.renameTo(oldFilePath);
                         DownloaderManager.getInstance().notifyDownloadSuccess(downloadInfo);
                         DownloaderManager.getInstance().removeSingleDownloadTask(downloadInfo);//移除下载任务
                     }
