@@ -1,5 +1,7 @@
 package com.gentler.downuploader.impl;
 
+import android.widget.ProgressBar;
+
 import com.gentler.downuploader.base.BaseDownloaderObserver;
 import com.gentler.downuploader.model.DownloadInfo;
 
@@ -9,10 +11,14 @@ import com.gentler.downuploader.model.DownloadInfo;
 
 public class SimpleDownloaderObserver extends BaseDownloaderObserver {
 
+    private ProgressBar mProgressBar;
+
+    public void bindProgressBar(ProgressBar progressBar){
+        this.mProgressBar=progressBar;
+    }
 
     public SimpleDownloaderObserver(String id) {
         super(id);
-
     }
 
     @Override

@@ -11,14 +11,13 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.gentler.downuploader.config.DownloadState;
 import com.gentler.downuploader.config.Storage;
 import com.gentler.downuploader.database.DBManager;
 import com.gentler.downuploader.impl.SimpleDownloaderObserver;
 import com.gentler.downuploader.manager.DownloaderManager;
 import com.gentler.downuploader.model.DownloadInfo;
 import com.gentler.downuploader.utils.LogUtils;
-
-import java.io.File;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -48,76 +47,86 @@ public class MainActivity extends AppCompatActivity {
         mContext = getApplicationContext();
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        mTargetId = "download_ali";
+        if (DownloaderManager.getInstance().isTargetDownloading(mTargetId)) {
+            Log.e(TAG, "从下载队列中获取");
+            mDownloadInfo = DownloaderManager.getInstance().getDownloadingTarget(mTargetId);
+        } else {
+            Log.e(TAG, "从数据库中获取");
+            mDownloadInfo = DBManager.getInstance(mContext).find(mTargetId);
+        }
+        if (null == mDownloadInfo) {
+            Log.e(TAG, "新建下载任务");
+            mDownloadInfo = new DownloadInfo();
+            mDownloadInfo.setId("download_ali");
+            mDownloadInfo.setCurrPos(0);
+            mDownloadInfo.setSize(79790722);
+            mDownloadInfo.setCurrState(DownloadState.IDLE);
+            mDownloadInfo.setName("ali.apk");
+            mDownloadInfo.setDownloadUrl("http://192.168.1.105:8080/ali.apk");
+            mDownloadInfo.setDir(Storage.DOWNLOAD_DIR);
+        } else {
+            mProgressBar.setProgress((int) (mDownloadInfo.getCurrPos() * 1000 / mDownloadInfo.getSize()));
+        }
     }
 
     @NeedsPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     @OnClick(R.id.btn_start)
     public void onClickDownload(View view) {
-//        mDownloadInfo.setDownloadUrl("http://192.168.1.105:8080/AdobePatcher.zip");
+        if (DownloaderManager.getInstance().isTargetDownloading(mTargetId)) {//如果任务正在下载则不用重复下载
+            Log.e(TAG, "从下载队列中获取");
+            mDownloadInfo = DownloaderManager.getInstance().getDownloadingTarget(mTargetId);
+            LogUtils.d(TAG, "mDownloadInfo.toString():" + mDownloadInfo.toString());
+        } else {
+            mTargetId = "download_02";
+            mDownloadInfo = DBManager.getInstance(mContext).find(mTargetId);
+            if (null == mDownloadInfo) {
+                mDownloadInfo = new DownloadInfo();
+                mDownloadInfo.setId("download_02");
+                mDownloadInfo.setCurrPos(0);
+                mDownloadInfo.setSize(3053621);
+                mDownloadInfo.setName("GSMAlarm.apk");
+                mDownloadInfo.setDownloadUrl("http://192.168.1.7:8080/GSMAlarm.apk");
+                mDownloadInfo.setDir(Storage.DOWNLOAD_DIR);
+            }
+            if (DownloaderManager.getInstance().isTargetDownloading(mTargetId)) {
+                Toast.makeText(mContext, "下载目标已经存在于任务列表！", Toast.LENGTH_SHORT).show();
+                LogUtils.d(TAG, "当前任务正在下载！");
+                return;
+            }
 
+            mDownloadObserver = new SimpleDownloaderObserver(mDownloadInfo.getId()) {
+                @Override
+                public void onDownloadPause(DownloadInfo downloadInfo) {
+                    super.onDownloadPause(downloadInfo);
+                    Log.e(TAG, "onDownloadPause downloadInfo.getCurrState()：" + downloadInfo.getCurrState());
 
-        mTargetId = "download_02";
-        mDownloadInfo = DBManager.getInstance(mContext).find(mTargetId);
-        if (null == mDownloadInfo) {
-            mDownloadInfo = new DownloadInfo();
-            mDownloadInfo.setId("download_02");
-            mDownloadInfo.setCurrPos(0);
-            mDownloadInfo.setSize(3053621);
-            mDownloadInfo.setName("GSMAlarm.apk");
-            mDownloadInfo.setDownloadUrl("http://192.168.1.7:8080/GSMAlarm.apk");
-            mDownloadInfo.setDir(Storage.DOWNLOAD_DIR);
-//        downloadInfo.setDownloadUrl("http://resource.peppertv.cn/gift/meteor_3d416423dbca1a0940fc3d8ac81f9410_2559755.zip");
+                }
+
+                @Override
+                public void onDownloadProgressChanged(DownloadInfo downloadInfo) {
+                    super.onDownloadProgressChanged(downloadInfo);
+                    Log.e(TAG, "当前下载：" + downloadInfo.getCurrPos());
+                    mProgressBar.setProgress((int) (downloadInfo.getCurrPos() * 1000 / downloadInfo.getSize()));
+                }
+
+                @Override
+                public void onDownloadSuccess(DownloadInfo downloadInfo) {
+                    LogUtils.d("onDownloadSuccess:" + downloadInfo.getName() + " 下载成功");
+                }
+
+                @Override
+                public void onDownloadError(DownloadInfo downloadInfo) {
+                    DownloaderManager.getInstance().unregisterObserver(this);
+                    LogUtils.d("onDownloadError:" + downloadInfo.getName() + " 下载失败");
+                }
+            };
+            DownloaderManager.getInstance().download(mDownloadInfo);
+            DownloaderManager.getInstance().registerObserver(mDownloadObserver);
         }
-
-        if (DownloaderManager.getInstance().isTargetDownloading(mTargetId)){
-            Toast.makeText(mContext, "下载目标已经存在于任务列表！", Toast.LENGTH_SHORT).show();
-            LogUtils.d(TAG,"当前任务正在下载！");
-
-
-
-            return;
-        }
-        generateObserver();
-        DownloaderManager.getInstance().download(mDownloadInfo);
-        DownloaderManager.getInstance().registerObserver(mDownloaderObserver);
-
     }
 
-    private void generateObserver() {
-        mDownloaderObserver=new SimpleDownloaderObserver(mDownloadInfo.getId()) {
-            @Override
-            public void onDownloadPause(DownloadInfo downloadInfo) {
-                super.onDownloadPause(downloadInfo);
-                Log.e(TAG, "onDownloadPause downloadInfo.getCurrState()：" + downloadInfo.getCurrState());
-
-            }
-
-            @Override
-            public void onDownloadProgressChanged(DownloadInfo downloadInfo) {
-                super.onDownloadProgressChanged(downloadInfo);
-                Log.e(TAG, "当前下载：" + downloadInfo.getCurrPos());
-                mProgressBar.setProgress((int) (downloadInfo.getCurrPos() * 1000 / downloadInfo.getSize()));
-            }
-
-            @Override
-            public void onDownloadSuccess(DownloadInfo downloadInfo) {
-                LogUtils.d("onDownloadSuccess:" + downloadInfo.getName()+" 下载成功");
-
-                File file=new File(downloadInfo.getDir(),downloadInfo.getName());
-                LogUtils.d(TAG,"file.getName():"+file.getName());
-                LogUtils.d(TAG,"file.getAbsolutePath():"+file.getAbsolutePath());
-            }
-
-            @Override
-            public void onDownloadError(DownloadInfo downloadInfo) {
-                DownloaderManager.getInstance().unregisterObserver(this);
-                LogUtils.d("onDownloadError:" + downloadInfo.getName()+" 下载失败");
-            }
-        };
-    }
-
-
-    private SimpleDownloaderObserver mDownloaderObserver;
+    private SimpleDownloaderObserver mDownloadObserver;
 
     @OnClick(R.id.btn_pause)
     public void onClickPause(View view) {
@@ -146,3 +155,4 @@ public class MainActivity extends AppCompatActivity {
     }
 
 }
+

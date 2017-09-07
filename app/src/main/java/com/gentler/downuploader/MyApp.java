@@ -7,7 +7,7 @@ import com.gentler.downuploader.manager.DownloaderManager;
 import com.gentler.downuploader.utils.Utils;
 
 /**
- * Created by administrato on 2017/6/12.
+ * Created by Jiantao on 2017/6/12.
  */
 
 public class MyApp extends Application {
