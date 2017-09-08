@@ -17,6 +17,11 @@ public class BarDownloaderObserver extends BaseDownloaderObserver {
     private final int MAX = 1000;
 
     public void bindProgressBar(ProgressBar progressBar) {
+        if (null!=mProgressBar){
+            Log.e(TAG,"progressbar :  old to new ");
+        }else{
+            Log.d(TAG,"progressbar : first set ");
+        }
         this.mProgressBar = progressBar;
         mProgressBar.setMax(1000);
     }

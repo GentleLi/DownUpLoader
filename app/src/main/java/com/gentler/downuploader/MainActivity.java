@@ -56,29 +56,32 @@ public class MainActivity extends AppCompatActivity {
     @NeedsPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     @OnClick(R.id.btn_start)
     public void onClickDownload(View view) {
-        mTargetId = "download_02";
-        mDownloadInfo = DBManager.getInstance(mContext).find(mTargetId);
+        mTargetId = "GSMAlarm";
         if (DownloaderManager.getInstance().isTargetDownloading(mTargetId)) {
             Toast.makeText(mContext, "下载目标已经存在于任务列表！", Toast.LENGTH_SHORT).show();
             LogUtils.d(TAG, "当前任务正在下载！");
+            mDownloadInfo=DownloaderManager.getInstance().getTarget(mTargetId);
+            if (mDownloadInfo.getCurrState()==DownloadState.PAUSE){
+                mDownloadInfo.setCurrState(DownloadState.RESTART);
+                DownloaderManager.getInstance().restart(mDownloadInfo);
+            }
             return;
         }
-
+        mDownloadInfo = DBManager.getInstance(mContext).find(mTargetId);
         if (null == mDownloadInfo) {
             Log.e(TAG, "新建下载任务");
             mDownloadInfo = new DownloadInfo();
-            mDownloadInfo.setId("download_02");
+            mDownloadInfo.setId("GSMAlarm");
             mDownloadInfo.setCurrPos(0);
-            mDownloadInfo.setSize(3053621);
+            mDownloadInfo.setSize(3054762);
             mDownloadInfo.setName("GSMAlarm.apk");
-            mDownloadInfo.setDownloadUrl("http://192.168.1.7:8080/GSMAlarm.apk");
+            mDownloadInfo.setDownloadUrl("http://192.168.1.105:8080/GsmAlarm.apk");
             mDownloadInfo.setDir(Storage.DOWNLOAD_DIR);
         } else {
             Log.e(TAG, "断点下载操作");
             LogUtils.d(TAG, mDownloadInfo);
             mProgressBar.setProgress((int) (mDownloadInfo.getCurrPos() * 1000 / mDownloadInfo.getSize()));
         }
-
         mDownloadObserver = new SimpleDownloaderObserver(mDownloadInfo.getId()) {
             @Override
             public void onDownloadPause(DownloadInfo downloadInfo) {
@@ -96,15 +99,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDownloadSuccess(DownloadInfo downloadInfo) {
                 super.onDownloadSuccess(downloadInfo);
-
                 LogUtils.d("onDownloadSuccess:" + downloadInfo.getName() + " 下载成功");
             }
 
             @Override
             public void onDownloadError(DownloadInfo downloadInfo) {
                 super.onDownloadError(downloadInfo);
-
-                DownloaderManager.getInstance().unregisterObserver(this);
+                DownloaderManager.getInstance().unregisterObserver(downloadInfo.getId());
                 LogUtils.d("onDownloadError:" + downloadInfo.getName() + " 下载失败");
             }
         };

@@ -40,9 +40,10 @@ public class DownloadTask implements Runnable {
     public void onDownloadPause() {//暂停时调用此方法
         Log.d(TAG,"onDownloadPause 将下载信息存储到数据库");
         if (DBManager.getInstance(DownloaderManager.getContext()).has(downloadInfo)){
-            DBManager.getInstance(DownloaderManager.getContext()).remove(downloadInfo.getId());
+            DBManager.getInstance(DownloaderManager.getContext()).update(downloadInfo);
+        }else{
+            DBManager.getInstance(DownloaderManager.getContext()).addDownloadInfo(downloadInfo);//将下载信息存储到数据库中
         }
-        DBManager.getInstance(DownloaderManager.getContext()).addDownloadInfo(downloadInfo);//将下载信息存储到数据库中
         ThreadPoolManager.getInstance().remove(this);
     }
 
@@ -117,6 +118,7 @@ public class DownloadTask implements Runnable {
                     }
                 }
                 if (downloadInfo.getCurrState() == DownloadState.PAUSE) {//暂停中
+                    LogUtils.d(TAG,"download pause!");
                     downloadInfo.setCurrState(DownloadState.PAUSE);
                     DownloaderManager.getInstance().notifyDownloadPause(downloadInfo);
                     onDownloadPause();

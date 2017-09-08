@@ -3,6 +3,7 @@ package com.gentler.downuploader.manager;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.gentler.downuploader.base.BaseDownloaderObserver;
 import com.gentler.downuploader.config.DownloadState;
@@ -64,6 +65,12 @@ public class DownloaderManager {
         }
     }
 
+    public synchronized void restart(DownloadInfo downloadInfo){
+        Log.e(TAG,"重新开始任务");
+        DownloadTask downloadTask=mDownloadTaskMap.get(downloadInfo.getId());
+        ThreadPoolManager.getInstance().execute(downloadTask);
+    }
+
     /**
      * 移除单个下载任务
      * @param downloadInfo
@@ -83,7 +90,7 @@ public class DownloaderManager {
 
 
     public void registerObserver(BaseDownloaderObserver observer) {
-        if (observer != null && !mDownloaderObservers.contains(observer)) {
+        if (observer != null /*&& !mDownloaderObservers.contains(observer)*/) {
             mDownloaderObservers.put(observer.getId(),observer);
             LogUtils.d(TAG,"注册观察者成功！");
         }
