@@ -6,16 +6,12 @@ import com.gentler.downuploader.base.BaseDownloaderObserver;
 import com.gentler.downuploader.model.DownloadInfo;
 
 /**
- * Created by administrato on 2017/8/24.
+ * Created by Jiantao on 2017/8/24.
  */
 
 public class SimpleDownloaderObserver extends BaseDownloaderObserver {
 
-    private ProgressBar mProgressBar;
 
-    public void bindProgressBar(ProgressBar progressBar){
-        this.mProgressBar=progressBar;
-    }
 
     public SimpleDownloaderObserver(String id) {
         super(id);

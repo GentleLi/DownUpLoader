@@ -1,7 +1,6 @@
 package com.gentler.downuploader;
 
 import android.Manifest;
-import android.app.DownloadManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -96,11 +95,15 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onDownloadSuccess(DownloadInfo downloadInfo) {
+                super.onDownloadSuccess(downloadInfo);
+
                 LogUtils.d("onDownloadSuccess:" + downloadInfo.getName() + " 下载成功");
             }
 
             @Override
             public void onDownloadError(DownloadInfo downloadInfo) {
+                super.onDownloadError(downloadInfo);
+
                 DownloaderManager.getInstance().unregisterObserver(this);
                 LogUtils.d("onDownloadError:" + downloadInfo.getName() + " 下载失败");
             }
