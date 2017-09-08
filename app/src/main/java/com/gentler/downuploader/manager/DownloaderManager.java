@@ -198,6 +198,7 @@ public class DownloaderManager {
         return mDownloadInfoMap.containsKey(targetId);
     }
 
+
     public boolean isTargetDownloading(String targetId){
         return mDownloadTaskMap.containsKey(targetId);
     }
@@ -214,5 +215,4 @@ public class DownloaderManager {
            return mDownloadInfoMap.get(targetId);
         }
     }
-
 }
