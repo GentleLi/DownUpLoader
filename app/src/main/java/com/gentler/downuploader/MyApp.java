@@ -3,7 +3,7 @@ package com.gentler.downuploader;
 import android.app.Application;
 import android.content.Context;
 
-import com.gentler.downuploader.manager.DownloaderManager;
+import com.gentler.downloaderlib.manager.DownloaderManager;
 import com.gentler.downuploader.utils.Utils;
 
 /**

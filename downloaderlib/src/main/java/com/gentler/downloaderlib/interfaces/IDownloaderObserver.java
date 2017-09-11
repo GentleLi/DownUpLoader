@@ -1,6 +1,7 @@
-package com.gentler.downuploader.interfaces;
+package com.gentler.downloaderlib.interfaces;
 
-import com.gentler.downuploader.model.DownloadInfo;
+
+import com.gentler.downloaderlib.model.DownloadInfo;
 
 /**
  * Created by Jiantao on 2017/8/24.

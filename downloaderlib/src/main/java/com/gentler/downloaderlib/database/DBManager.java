@@ -1,4 +1,4 @@
-package com.gentler.downuploader.database;
+package com.gentler.downloaderlib.database;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -8,11 +8,9 @@ import android.database.sqlite.SQLiteException;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.gentler.downuploader.config.AppConstants;
-import com.gentler.downuploader.model.DownloadInfo;
-import com.gentler.downuploader.utils.LogUtils;
+import com.gentler.downloaderlib.config.Constants;
+import com.gentler.downloaderlib.model.DownloadInfo;
 
-import java.util.List;
 
 /**
  * Created by jiantao on 2017/6/14.
@@ -48,18 +46,18 @@ public class DBManager {
         db.beginTransaction();//开启事务
         try {
             ContentValues values = new ContentValues();
-            values.put(AppConstants.DB_COLUMN_TARGET_NAME, downloadInfo.getName());
-            values.put(AppConstants.DB_COLUMN_TARGET_ID, downloadInfo.getId());
-            values.put(AppConstants.DB_COLUMN_CURR_POS, downloadInfo.getCurrPos());
-            values.put(AppConstants.DB_COLUMN_DOWNLOAD_URL, downloadInfo.getDownloadUrl());
-            values.put(AppConstants.DB_COLUMN_TARGET_SIZE, downloadInfo.getSize());
-            values.put(AppConstants.DB_COLUMN_TARGET_DIR, downloadInfo.getDir());
+            values.put(Constants.DB_COLUMN_TARGET_NAME, downloadInfo.getName());
+            values.put(Constants.DB_COLUMN_TARGET_ID, downloadInfo.getId());
+            values.put(Constants.DB_COLUMN_CURR_POS, downloadInfo.getCurrPos());
+            values.put(Constants.DB_COLUMN_DOWNLOAD_URL, downloadInfo.getDownloadUrl());
+            values.put(Constants.DB_COLUMN_TARGET_SIZE, downloadInfo.getSize());
+            values.put(Constants.DB_COLUMN_TARGET_DIR, downloadInfo.getDir());
             long rowId = db.insert(DBHelper.TABLE_NAME, null, values);
             Log.d(TAG, "rowId:" + rowId);
             if (rowId == -1) {
-                LogUtils.i(TAG, "插入失败");
+                Log.i(TAG, "插入失败");
             } else {
-                LogUtils.i(TAG, "插入成功");
+                Log.i(TAG, "插入成功");
                 db.setTransactionSuccessful();//设置事务的标志为True
             }
         } catch (SQLiteException e) {
@@ -75,12 +73,12 @@ public class DBManager {
     public void insert(DownloadInfo info) {
         SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
         db.execSQL("INSERT INTO " + DBHelper.TABLE_NAME + "(" +
-                        AppConstants.DB_COLUMN_TARGET_NAME + ", " +
-                        AppConstants.DB_COLUMN_TARGET_ID + ", " +
-                        AppConstants.DB_COLUMN_CURR_POS + ", " +
-                        AppConstants.DB_COLUMN_DOWNLOAD_URL + ", " +
-                        AppConstants.DB_COLUMN_TARGET_SIZE + ", " +
-                        AppConstants.DB_COLUMN_TARGET_DIR + ") values (?,?,?,?,?,?)",
+                        Constants.DB_COLUMN_TARGET_NAME + ", " +
+                        Constants.DB_COLUMN_TARGET_ID + ", " +
+                        Constants.DB_COLUMN_CURR_POS + ", " +
+                        Constants.DB_COLUMN_DOWNLOAD_URL + ", " +
+                        Constants.DB_COLUMN_TARGET_SIZE + ", " +
+                        Constants.DB_COLUMN_TARGET_DIR + ") values (?,?,?,?,?,?)",
                 new Object[]{info.getName(), info.getId(), info.getCurrPos(), info.getDownloadUrl(),
                         info.getSize(), info.getDir()});
         db.close();
@@ -92,11 +90,11 @@ public class DBManager {
      *
      * @param downloadInfos
      */
-    public void addAll(List<DownloadInfo> downloadInfos) {
-        downloadInfos.forEach(downloadInfo -> {
-            addDownloadInfo(downloadInfo);
-        });
-    }
+//    public void addAll(List<DownloadInfo> downloadInfos) {
+//        downloadInfos.forEach(downloadInfo -> {
+//            addDownloadInfo(downloadInfo);
+//        });
+//    }
 
     /**
      * 查询下载信息
@@ -104,18 +102,18 @@ public class DBManager {
      * @param id 关键字 id 在此实际为 下载资源的resourseId
      */
     public void query(String id) {
-        LogUtils.d(TAG, "query");
+        Log.d(TAG, "query");
         SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
         db.beginTransaction();
         try {
-            Cursor cursor = db.query(DBHelper.TABLE_NAME, null, AppConstants.DB_COLUMN_TARGET_ID + " = ?", new String[]{id}, null, null, null);
+            Cursor cursor = db.query(DBHelper.TABLE_NAME, null, Constants.DB_COLUMN_TARGET_ID + " = ?", new String[]{id}, null, null, null);
             if (null != cursor) {
                 int count = cursor.getColumnCount();
-                LogUtils.e(TAG, "count==" + count);
+                Log.e(TAG, "count==" + count);
                 while (cursor.moveToNext()) {
-                    LogUtils.e(TAG, "cursor.getColumnIndex(AppConstants.DB_COLUMN_TARGET_ID):" + cursor.getColumnIndex(AppConstants.DB_COLUMN_TARGET_ID));
+                    Log.e(TAG, "cursor.getColumnIndex(Constants.DB_COLUMN_TARGET_ID):" + cursor.getColumnIndex(Constants.DB_COLUMN_TARGET_ID));
                     for (int i = 0; i < count; i++) {
-                        LogUtils.e(TAG, "cursor.getColumnName(" + i + "):" + cursor.getColumnName(i));
+                        Log.e(TAG, "cursor.getColumnName(" + i + "):" + cursor.getColumnName(i));
                     }
                 }
             }
@@ -152,9 +150,9 @@ public class DBManager {
         if (TextUtils.isEmpty(id)) {
             return false;
         }
-        LogUtils.d(TAG, "find");
+        Log.d(TAG, "find");
         SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
-        Cursor cursor = db.query(DBHelper.TABLE_NAME, null, AppConstants.DB_COLUMN_TARGET_ID + " = ?", new String[]{id}, null, null, null);
+        Cursor cursor = db.query(DBHelper.TABLE_NAME, null, Constants.DB_COLUMN_TARGET_ID + " = ?", new String[]{id}, null, null, null);
         if (null != cursor && cursor.moveToNext()) {
             return true;
         }
@@ -163,41 +161,41 @@ public class DBManager {
 
     public DownloadInfo find(String id) {
         DownloadInfo downloadInfo = null;
-        LogUtils.d(TAG, "find");
+        Log.d(TAG, "find");
         SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
         try {
-            Cursor cursor = db.query(DBHelper.TABLE_NAME, null, AppConstants.DB_COLUMN_TARGET_ID + " = ?", new String[]{id}, null, null, null);
+            Cursor cursor = db.query(DBHelper.TABLE_NAME, null, Constants.DB_COLUMN_TARGET_ID + " = ?", new String[]{id}, null, null, null);
             if (null != cursor) {
                 if (cursor.moveToNext()) {//查询出第一个
                     downloadInfo = new DownloadInfo();
                     int count = cursor.getColumnCount();
-                    LogUtils.e(TAG, "count==" + count);
-                    LogUtils.e(TAG, "cursor.getColumnIndex(AppConstants.DB_COLUMN_TARGET_ID):" + cursor.getColumnIndex(AppConstants.DB_COLUMN_TARGET_ID));
+                    Log.e(TAG, "count==" + count);
+                    Log.e(TAG, "cursor.getColumnIndex(Constants.DB_COLUMN_TARGET_ID):" + cursor.getColumnIndex(Constants.DB_COLUMN_TARGET_ID));
                     for (int i = 0; i < count; i++) {
-                        LogUtils.e(TAG, "cursor.getColumnName(" + i + "):" + cursor.getColumnName(i));
+                        Log.e(TAG, "cursor.getColumnName(" + i + "):" + cursor.getColumnName(i));
                         switch (cursor.getColumnName(i)) {
-                            case AppConstants.DB_COLUMN_TARGET_ID:
-                                String target_id = cursor.getString(cursor.getColumnIndex(AppConstants.DB_COLUMN_TARGET_ID));
+                            case Constants.DB_COLUMN_TARGET_ID:
+                                String target_id = cursor.getString(cursor.getColumnIndex(Constants.DB_COLUMN_TARGET_ID));
                                 downloadInfo.setId(target_id);
                                 break;
-                            case AppConstants.DB_COLUMN_CURR_POS:
-                                long curr_pos = cursor.getLong(cursor.getColumnIndex(AppConstants.DB_COLUMN_CURR_POS));
+                            case Constants.DB_COLUMN_CURR_POS:
+                                long curr_pos = cursor.getLong(cursor.getColumnIndex(Constants.DB_COLUMN_CURR_POS));
                                 downloadInfo.setCurrPos(curr_pos);
                                 break;
-                            case AppConstants.DB_COLUMN_DOWNLOAD_URL:
-                                String url = cursor.getString(cursor.getColumnIndex(AppConstants.DB_COLUMN_DOWNLOAD_URL));
+                            case Constants.DB_COLUMN_DOWNLOAD_URL:
+                                String url = cursor.getString(cursor.getColumnIndex(Constants.DB_COLUMN_DOWNLOAD_URL));
                                 downloadInfo.setDownloadUrl(url);
                                 break;
-                            case AppConstants.DB_COLUMN_TARGET_NAME:
-                                String name = cursor.getString(cursor.getColumnIndex(AppConstants.DB_COLUMN_TARGET_NAME));
+                            case Constants.DB_COLUMN_TARGET_NAME:
+                                String name = cursor.getString(cursor.getColumnIndex(Constants.DB_COLUMN_TARGET_NAME));
                                 downloadInfo.setName(name);
                                 break;
-                            case AppConstants.DB_COLUMN_TARGET_DIR:
-                                String path = cursor.getString(cursor.getColumnIndex(AppConstants.DB_COLUMN_TARGET_DIR));
+                            case Constants.DB_COLUMN_TARGET_DIR:
+                                String path = cursor.getString(cursor.getColumnIndex(Constants.DB_COLUMN_TARGET_DIR));
                                 downloadInfo.setDir(path);
                                 break;
-                            case AppConstants.DB_COLUMN_TARGET_SIZE:
-                                long size = cursor.getLong(cursor.getColumnIndex(AppConstants.DB_COLUMN_TARGET_SIZE));
+                            case Constants.DB_COLUMN_TARGET_SIZE:
+                                long size = cursor.getLong(cursor.getColumnIndex(Constants.DB_COLUMN_TARGET_SIZE));
                                 downloadInfo.setSize(size);
                                 break;
                         }
@@ -221,16 +219,16 @@ public class DBManager {
      * @param id
      */
     public void remove(String id) {
-        LogUtils.d(TAG, "remove");
+        Log.d(TAG, "remove");
         SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
         try {
             db.beginTransaction();
-            int results = db.delete(DBHelper.TABLE_NAME, AppConstants.DB_COLUMN_TARGET_ID + " = ?", new String[]{id});
-            LogUtils.d(TAG, "results:" + results);
+            int results = db.delete(DBHelper.TABLE_NAME, Constants.DB_COLUMN_TARGET_ID + " = ?", new String[]{id});
+            Log.d(TAG, "results:" + results);
             if (results == 0) {//说明没有删除数据（数据库中不存在此数据或者 删除过程出现问题而失败）
-                LogUtils.d(TAG, "删除失败");
+                Log.d(TAG, "删除失败");
             } else {//删除了多少行
-                LogUtils.d(TAG, "删除成功");
+                Log.d(TAG, "删除成功");
                 db.setTransactionSuccessful();//设置事务的标志为true，表示这次操作成功
                 //事务的提交或回滚是由事务的标志决定的,如果事务的标志为True，事务就会提交，否侧回滚,默认情况下事务的标志为False
             }
@@ -248,15 +246,15 @@ public class DBManager {
      * 清空表
      */
     public void clearTable() {
-        LogUtils.d(TAG, "remove");
+        Log.d(TAG, "remove");
         SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
         try {
             db.beginTransaction();
             int results = db.delete(DBHelper.TABLE_NAME, null, null);
             if (results == 0) {//说明没有删除数据（数据库中不存在此数据或者 删除过程出现问题而失败）
-                LogUtils.d(TAG, "删除失败");
+                Log.d(TAG, "删除失败");
             } else {//删除了多少行
-                LogUtils.d(TAG, "删除成功");
+                Log.d(TAG, "删除成功");
                 db.setTransactionSuccessful();//设置事务的标志为true，表示这次操作成功
                 //事务的提交或回滚是由事务的标志决定的,如果事务的标志为True，事务就会提交，否侧回滚,默认情况下事务的标志为False
             }
@@ -274,22 +272,22 @@ public class DBManager {
      * @param downloadInfo
      */
     public void update(DownloadInfo downloadInfo) {
-        LogUtils.d(TAG, "update");
+        Log.d(TAG, "update");
         SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
         try {
             db.beginTransaction();
             ContentValues values = new ContentValues();
-            values.put(AppConstants.DB_COLUMN_TARGET_NAME, downloadInfo.getName());
-            values.put(AppConstants.DB_COLUMN_CURR_POS, downloadInfo.getCurrPos());
-            values.put(AppConstants.DB_COLUMN_DOWNLOAD_URL, downloadInfo.getDownloadUrl());
-            values.put(AppConstants.DB_COLUMN_TARGET_SIZE, downloadInfo.getSize());
-            values.put(AppConstants.DB_COLUMN_TARGET_DIR, downloadInfo.getDir());
-            int results = db.update(DBHelper.TABLE_NAME, values, AppConstants.DB_COLUMN_TARGET_ID + "= ?", new String[]{downloadInfo.getId()});
-            LogUtils.d(TAG, "results:" + results);
+            values.put(Constants.DB_COLUMN_TARGET_NAME, downloadInfo.getName());
+            values.put(Constants.DB_COLUMN_CURR_POS, downloadInfo.getCurrPos());
+            values.put(Constants.DB_COLUMN_DOWNLOAD_URL, downloadInfo.getDownloadUrl());
+            values.put(Constants.DB_COLUMN_TARGET_SIZE, downloadInfo.getSize());
+            values.put(Constants.DB_COLUMN_TARGET_DIR, downloadInfo.getDir());
+            int results = db.update(DBHelper.TABLE_NAME, values, Constants.DB_COLUMN_TARGET_ID + "= ?", new String[]{downloadInfo.getId()});
+            Log.d(TAG, "results:" + results);
             if (results == 0) {//说明没有删除数据（数据库中不存在此数据或者 删除过程出现问题而失败）
-                LogUtils.d(TAG, "更新失败");
+                Log.d(TAG, "更新失败");
             } else {//删除了多少行
-                LogUtils.d(TAG, "更新成功");
+                Log.d(TAG, "更新成功");
                 db.setTransactionSuccessful();
             }
         } catch (SQLiteException e) {

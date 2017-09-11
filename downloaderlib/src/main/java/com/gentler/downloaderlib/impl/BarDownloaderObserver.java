@@ -1,10 +1,11 @@
-package com.gentler.downuploader.impl;
+package com.gentler.downloaderlib.impl;
 
 import android.util.Log;
 import android.widget.ProgressBar;
 
-import com.gentler.downuploader.base.BaseDownloaderObserver;
-import com.gentler.downuploader.model.DownloadInfo;
+import com.gentler.downloaderlib.base.BaseDownloaderObserver;
+import com.gentler.downloaderlib.model.DownloadInfo;
+
 
 /**
  * Created by Jiantao on 2017/9/8.

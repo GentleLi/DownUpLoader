@@ -1,16 +1,14 @@
-package com.gentler.downuploader.task;
+package com.gentler.downloaderlib.task;
 
 
-import android.os.Process;
 import android.util.Log;
 
-import com.gentler.downuploader.config.DownloadState;
-import com.gentler.downuploader.database.DBManager;
-import com.gentler.downuploader.helper.DownloadHelper;
-import com.gentler.downuploader.manager.DownloaderManager;
-import com.gentler.downuploader.manager.ThreadPoolManager;
-import com.gentler.downuploader.model.DownloadInfo;
-import com.gentler.downuploader.utils.LogUtils;
+import com.gentler.downloaderlib.config.DownloadState;
+import com.gentler.downloaderlib.database.DBManager;
+import com.gentler.downloaderlib.helper.DownloadHelper;
+import com.gentler.downloaderlib.manager.DownloaderManager;
+import com.gentler.downloaderlib.manager.ThreadPoolManager;
+import com.gentler.downloaderlib.model.DownloadInfo;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,14 +58,14 @@ public class DownloadTask implements Runnable {
 
     @Override
     public void run() {
-        String tempFile=DownloadHelper.getTempFilePath(downloadInfo.getDir(),downloadInfo.getName());
+        String tempFile= DownloadHelper.getTempFilePath(downloadInfo.getDir(),downloadInfo.getName());
         File file = new File(tempFile);//下载存放的文件
 
 
         Log.e(TAG, "downloadInfo.getCurrPos():" + downloadInfo.getCurrPos());
         try {
             if (file.exists()) {//文件存在
-                LogUtils.d(TAG,"file.length():"+file.length());
+                Log.d(TAG,"file.length():"+file.length());
                 if (file.length()==0||file.length() != downloadInfo.getCurrPos()) {//如果文件不存在 或者文件长度为0 或者文件的长度与当前标记的下载长度不相等 则删除文件重新下载
                     file.delete();
                     file.createNewFile();
@@ -119,7 +117,7 @@ public class DownloadTask implements Runnable {
                     }
                 }
                 if (downloadInfo.getCurrState() == DownloadState.PAUSE) {//暂停中
-                    LogUtils.d(TAG,"download pause!");
+                    Log.d(TAG,"download pause!");
                     downloadInfo.setCurrState(DownloadState.PAUSE);
                     DownloaderManager.getInstance().notifyDownloadPause(downloadInfo);
                     onDownloadPause();

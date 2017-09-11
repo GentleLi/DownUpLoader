@@ -1,4 +1,4 @@
-package com.gentler.downuploader.config;
+package com.gentler.downloaderlib.config;
 
 /**
  * Created by Jiantao on 2017/6/12.

@@ -1,9 +1,9 @@
-package com.gentler.downuploader.helper;
+package com.gentler.downloaderlib.helper;
 
 import android.util.Log;
 
-import com.gentler.downuploader.config.AppConstants;
-import com.gentler.downuploader.utils.LogUtils;
+
+import com.gentler.downloaderlib.config.Constants;
 
 import java.io.File;
 
@@ -15,7 +15,7 @@ public class DownloadHelper {
     private static final String TAG=DownloadHelper.class.getSimpleName();
 
     public static String getTempFilePath(String fileDir, String fileName) {
-        return fileDir + fileName + AppConstants.TMP;
+        return fileDir + fileName + Constants.TMP;
     }
 
     public static void renameTo(String oldFilePath){

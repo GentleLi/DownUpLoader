@@ -1,6 +1,7 @@
-package com.gentler.downuploader.model;
+package com.gentler.downloaderlib.model;
 
-import com.gentler.downuploader.config.DownloadState;
+
+import com.gentler.downloaderlib.config.DownloadState;
 
 /**
  * 下载信息类，包含要下载文件的各种信息

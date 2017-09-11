@@ -11,12 +11,12 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.gentler.downuploader.config.DownloadState;
+import com.gentler.downloaderlib.config.DownloadState;
+import com.gentler.downloaderlib.database.DBManager;
+import com.gentler.downloaderlib.impl.BarDownloaderObserver;
+import com.gentler.downloaderlib.manager.DownloaderManager;
+import com.gentler.downloaderlib.model.DownloadInfo;
 import com.gentler.downuploader.config.Storage;
-import com.gentler.downuploader.database.DBManager;
-import com.gentler.downuploader.impl.SimpleDownloaderObserver;
-import com.gentler.downuploader.manager.DownloaderManager;
-import com.gentler.downuploader.model.DownloadInfo;
 import com.gentler.downuploader.utils.LogUtils;
 
 import butterknife.BindView;
@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(mContext, "下载目标已经存在于任务列表！", Toast.LENGTH_SHORT).show();
             LogUtils.d(TAG, "当前任务正在下载！");
             mDownloadInfo=DownloaderManager.getInstance().getTarget(mTargetId);
-            if (mDownloadInfo.getCurrState()==DownloadState.PAUSE){
+            if (mDownloadInfo.getCurrState()== DownloadState.PAUSE){
                 mDownloadInfo.setCurrState(DownloadState.RESTART);
                 DownloaderManager.getInstance().restart(mDownloadInfo);
             }
@@ -82,38 +82,67 @@ public class MainActivity extends AppCompatActivity {
             LogUtils.d(TAG, mDownloadInfo);
             mProgressBar.setProgress((int) (mDownloadInfo.getCurrPos() * 1000 / mDownloadInfo.getSize()));
         }
-        mDownloadObserver = new SimpleDownloaderObserver(mDownloadInfo.getId()) {
+
+        mDownloadObserver=new BarDownloaderObserver(mDownloadInfo.getId()){
             @Override
             public void onDownloadPause(DownloadInfo downloadInfo) {
                 super.onDownloadPause(downloadInfo);
-                Log.e(TAG, "onDownloadPause downloadInfo.getCurrState()：" + downloadInfo.getCurrState());
+
             }
 
             @Override
             public void onDownloadProgressChanged(DownloadInfo downloadInfo) {
                 super.onDownloadProgressChanged(downloadInfo);
-                Log.e(TAG, "当前下载：" + downloadInfo.getCurrPos());
-                mProgressBar.setProgress((int) (downloadInfo.getCurrPos() * 1000 / downloadInfo.getSize()));
+                Log.d(TAG,"currPos:"+downloadInfo.getCurrPos());
             }
 
             @Override
             public void onDownloadSuccess(DownloadInfo downloadInfo) {
                 super.onDownloadSuccess(downloadInfo);
-                LogUtils.d("onDownloadSuccess:" + downloadInfo.getName() + " 下载成功");
+
             }
 
             @Override
             public void onDownloadError(DownloadInfo downloadInfo) {
                 super.onDownloadError(downloadInfo);
-                DownloaderManager.getInstance().unregisterObserver(downloadInfo.getId());
-                LogUtils.d("onDownloadError:" + downloadInfo.getName() + " 下载失败");
+
             }
+
+
         };
+        mDownloadObserver.bindProgressBar(mProgressBar);
+//        mDownloadObserver = new SimpleDownloaderObserver(mDownloadInfo.getId()) {
+//            @Override
+//            public void onDownloadPause(DownloadInfo downloadInfo) {
+//                super.onDownloadPause(downloadInfo);
+//                Log.e(TAG, "onDownloadPause downloadInfo.getCurrState()：" + downloadInfo.getCurrState());
+//            }
+//
+//            @Override
+//            public void onDownloadProgressChanged(DownloadInfo downloadInfo) {
+//                super.onDownloadProgressChanged(downloadInfo);
+//                Log.e(TAG, "当前下载：" + downloadInfo.getCurrPos());
+//                mProgressBar.setProgress((int) (downloadInfo.getCurrPos() * 1000 / downloadInfo.getSize()));
+//            }
+//
+//            @Override
+//            public void onDownloadSuccess(DownloadInfo downloadInfo) {
+//                super.onDownloadSuccess(downloadInfo);
+//                LogUtils.d("onDownloadSuccess:" + downloadInfo.getName() + " 下载成功");
+//            }
+//
+//            @Override
+//            public void onDownloadError(DownloadInfo downloadInfo) {
+//                super.onDownloadError(downloadInfo);
+//                DownloaderManager.getInstance().unregisterObserver(downloadInfo.getId());
+//                LogUtils.d("onDownloadError:" + downloadInfo.getName() + " 下载失败");
+//            }
+//        };
         DownloaderManager.getInstance().download(mDownloadInfo);
         DownloaderManager.getInstance().registerObserver(mDownloadObserver);
     }
 
-    private SimpleDownloaderObserver mDownloadObserver;
+    private BarDownloaderObserver mDownloadObserver;
 
 
     public void backupDownload(){

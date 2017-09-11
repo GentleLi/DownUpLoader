@@ -1,15 +1,14 @@
-package com.gentler.downuploader.manager;
+package com.gentler.downloaderlib.manager;
 
 
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.gentler.downuploader.base.BaseDownloaderObserver;
-import com.gentler.downuploader.config.DownloadState;
-import com.gentler.downuploader.model.DownloadInfo;
-import com.gentler.downuploader.task.DownloadTask;
-import com.gentler.downuploader.utils.LogUtils;
+import com.gentler.downloaderlib.base.BaseDownloaderObserver;
+import com.gentler.downloaderlib.config.DownloadState;
+import com.gentler.downloaderlib.model.DownloadInfo;
+import com.gentler.downloaderlib.task.DownloadTask;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -76,13 +75,13 @@ public class DownloaderManager {
      * @param downloadInfo
      */
     public void removeSingleDownloadTask(DownloadInfo downloadInfo){
-        LogUtils.d(TAG,"removeSingleDownloadTask");
+        Log.d(TAG,"removeSingleDownloadTask");
         if (null==downloadInfo||null==mDownloadInfoMap)return;
         if (mDownloadTaskMap.containsKey(downloadInfo.getId())){
             DownloadTask downloadTask=mDownloadTaskMap.remove(downloadInfo.getId());
-            LogUtils.d(TAG,"移除成功");
+            Log.d(TAG,"移除成功");
             if (downloadTask!=null){
-                LogUtils.d(TAG,downloadTask.toString());
+                Log.d(TAG,downloadTask.toString());
             }
         }
     }
@@ -92,16 +91,16 @@ public class DownloaderManager {
     public void registerObserver(BaseDownloaderObserver observer) {
         if (observer != null /*&& !mDownloaderObservers.contains(observer)*/) {
             mDownloaderObservers.put(observer.getId(),observer);
-            LogUtils.d(TAG,"注册观察者成功！");
+            Log.d(TAG,"注册观察者成功！");
         }
     }
 
     public void unregisterObserver(BaseDownloaderObserver observer) {
         if (observer != null && mDownloaderObservers.contains(observer)) {
             BaseDownloaderObserver downloaderObserver=mDownloaderObservers.remove(observer);
-            LogUtils.d(TAG,"移除Observer成功！");
+            Log.d(TAG,"移除Observer成功！");
             if (null!=downloaderObserver){
-                LogUtils.d(downloaderObserver);
+                Log.d(TAG,downloaderObserver.toString());
             }
         }
     }

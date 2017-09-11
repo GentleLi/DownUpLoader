@@ -1,11 +1,11 @@
-package com.gentler.downuploader.database;
+package com.gentler.downloaderlib.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
-import com.gentler.downuploader.config.AppConstants;
-import com.gentler.downuploader.utils.LogUtils;
+import com.gentler.downloaderlib.config.Constants;
 
 
 /**
@@ -19,13 +19,13 @@ public class DBHelper extends SQLiteOpenHelper {
     public static int DB_VERSION = 1;
     static final String DATABASE_CREATE_STATEMENT = "CREATE TABLE IF NOT EXISTS " +
             TABLE_NAME + "(" +
-            AppConstants.DB_COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-            AppConstants.DB_COLUMN_TARGET_ID + " VARCHAR NOT NULL, " +
-            AppConstants.DB_COLUMN_TARGET_NAME + " VARCHAR NOT NULL UNIQUE, " +
-            AppConstants.DB_COLUMN_DOWNLOAD_URL + " VARCHAR, " +
-            AppConstants.DB_COLUMN_TARGET_SIZE + " INTEGER, " +
-            AppConstants.DB_COLUMN_CURR_POS + " INTEGER, " +
-            AppConstants.DB_COLUMN_TARGET_DIR + " CHAR " +
+            Constants.DB_COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            Constants.DB_COLUMN_TARGET_ID + " VARCHAR NOT NULL, " +
+            Constants.DB_COLUMN_TARGET_NAME + " VARCHAR NOT NULL UNIQUE, " +
+            Constants.DB_COLUMN_DOWNLOAD_URL + " VARCHAR, " +
+            Constants.DB_COLUMN_TARGET_SIZE + " INTEGER, " +
+            Constants.DB_COLUMN_CURR_POS + " INTEGER, " +
+            Constants.DB_COLUMN_TARGET_DIR + " CHAR " +
             ")";
     static final String DATABASE_UPGRADE_STATEMENT = "DROP TABLE IF EXISTS " + DB_NAME;
 
@@ -35,13 +35,13 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        LogUtils.e(TAG, "OnCreate");
+        Log.e(TAG, "OnCreate");
         db.execSQL(DATABASE_CREATE_STATEMENT);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        LogUtils.e(TAG, "onUpgrade");
+        Log.e(TAG, "onUpgrade");
         db.execSQL(DATABASE_UPGRADE_STATEMENT);
         db.execSQL(DATABASE_CREATE_STATEMENT);
     }
