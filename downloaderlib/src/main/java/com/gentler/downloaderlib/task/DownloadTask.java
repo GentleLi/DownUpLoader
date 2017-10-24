@@ -95,7 +95,6 @@ public class DownloadTask implements Runnable {
             Log.e(TAG, "connection.getContentLength()==" + connection.getContentLength());
             Log.e(TAG, "connection.getResponseCode()==" + connection.getResponseCode());
             stopPos = connection.getContentLength();
-
             RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rwd");
             randomAccessFile.seek(startPos);
             InputStream is = null;

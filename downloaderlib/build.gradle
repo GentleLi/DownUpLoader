@@ -3,8 +3,6 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
-version="0.0.1"
-
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.3"
@@ -99,7 +97,7 @@ install {
                         //开发者的个人信息
                         id 'gentler'
                         name 'Gentle Lee'
-                        email 'lijiantao5251@gmail.com'
+                        email 'GentlerLee@gmail.com'
                     }
                 }
                 scm {
