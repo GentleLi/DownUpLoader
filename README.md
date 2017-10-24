@@ -5,3 +5,10 @@ Android下载上传工具
 3.可以在多个页面获取下载进度
 
 ![断点下载演示](https://github.com/GentleLi/DownUpLoader/blob/master/download.gif)
+
+
+Gradle使用
+
+    compile 'gentler:downloaderlib:1.0.0'
+
+
