@@ -70,13 +70,9 @@ public class MainActivity extends AppCompatActivity {
         mDownloadInfo = DBManager.getInstance(mContext).find(mTargetId);
         if (null == mDownloadInfo) {
             Log.e(TAG, "新建下载任务");
-            mDownloadInfo = new DownloadInfo();
-            mDownloadInfo.setId("GSMAlarm");
-            mDownloadInfo.setCurrPos(0);
-            mDownloadInfo.setSize(3054762);
-            mDownloadInfo.setName("GSMAlarm.apk");
-            mDownloadInfo.setDownloadUrl("http://192.168.1.105:8080/GsmAlarm.apk");
-            mDownloadInfo.setDir(Storage.DOWNLOAD_DIR);
+            DownloadInfo.Builder builder=new DownloadInfo.Builder();
+            mDownloadInfo=builder.id("GSMAlarm").name("GSMAlarm.apk").downloadUrl("http://192.168.1.105:8080/GsmAlarm.apk").size(3054762).currPos(0).dir(Storage.DOWNLOAD_DIR).build();
+
         } else {
             Log.e(TAG, "断点下载操作");
             LogUtils.d(TAG, mDownloadInfo);
@@ -158,14 +154,8 @@ public class MainActivity extends AppCompatActivity {
         mDownloadInfo = DBManager.getInstance(mContext).find(mTargetId);
         if (null == mDownloadInfo) {
             Log.e(TAG, "新建下载任务");
-            mDownloadInfo = new DownloadInfo();
-            mDownloadInfo.setId("download_ali");
-            mDownloadInfo.setCurrPos(0);
-            mDownloadInfo.setSize(79790722);
-            mDownloadInfo.setCurrState(DownloadState.IDLE);
-            mDownloadInfo.setName("ali.apk");
-            mDownloadInfo.setDownloadUrl("http://192.168.1.105:8080/ali.apk");
-            mDownloadInfo.setDir(Storage.DOWNLOAD_DIR);
+            DownloadInfo.Builder builder=new DownloadInfo.Builder();
+            mDownloadInfo=builder.id("GSMAlarm").name("GSMAlarm.apk").downloadUrl("http://192.168.1.105:8080/GsmAlarm.apk").size(3054762).currPos(0).dir(Storage.DOWNLOAD_DIR).build();
         } else {
             Log.e(TAG, "断点下载操作");
             LogUtils.d(TAG, mDownloadInfo);

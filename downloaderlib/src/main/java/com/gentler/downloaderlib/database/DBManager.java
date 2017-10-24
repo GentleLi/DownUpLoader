@@ -167,7 +167,7 @@ public class DBManager {
             Cursor cursor = db.query(DBHelper.TABLE_NAME, null, Constants.DB_COLUMN_TARGET_ID + " = ?", new String[]{id}, null, null, null);
             if (null != cursor) {
                 if (cursor.moveToNext()) {//查询出第一个
-                    downloadInfo = new DownloadInfo();
+                    DownloadInfo.Builder builder=new DownloadInfo.Builder();
                     int count = cursor.getColumnCount();
                     Log.e(TAG, "count==" + count);
                     Log.e(TAG, "cursor.getColumnIndex(Constants.DB_COLUMN_TARGET_ID):" + cursor.getColumnIndex(Constants.DB_COLUMN_TARGET_ID));
@@ -176,30 +176,31 @@ public class DBManager {
                         switch (cursor.getColumnName(i)) {
                             case Constants.DB_COLUMN_TARGET_ID:
                                 String target_id = cursor.getString(cursor.getColumnIndex(Constants.DB_COLUMN_TARGET_ID));
-                                downloadInfo.setId(target_id);
+                                builder.id(target_id);
                                 break;
                             case Constants.DB_COLUMN_CURR_POS:
                                 long curr_pos = cursor.getLong(cursor.getColumnIndex(Constants.DB_COLUMN_CURR_POS));
-                                downloadInfo.setCurrPos(curr_pos);
+                                builder.currPos(curr_pos);
                                 break;
                             case Constants.DB_COLUMN_DOWNLOAD_URL:
                                 String url = cursor.getString(cursor.getColumnIndex(Constants.DB_COLUMN_DOWNLOAD_URL));
-                                downloadInfo.setDownloadUrl(url);
+                                builder.downloadUrl(url);
                                 break;
                             case Constants.DB_COLUMN_TARGET_NAME:
                                 String name = cursor.getString(cursor.getColumnIndex(Constants.DB_COLUMN_TARGET_NAME));
-                                downloadInfo.setName(name);
+                                builder.name(name);
                                 break;
                             case Constants.DB_COLUMN_TARGET_DIR:
                                 String path = cursor.getString(cursor.getColumnIndex(Constants.DB_COLUMN_TARGET_DIR));
-                                downloadInfo.setDir(path);
+                                builder.dir(path);
                                 break;
                             case Constants.DB_COLUMN_TARGET_SIZE:
                                 long size = cursor.getLong(cursor.getColumnIndex(Constants.DB_COLUMN_TARGET_SIZE));
-                                downloadInfo.setSize(size);
+                                builder.size(size);
                                 break;
                         }
                     }
+                    downloadInfo=builder.build();
                 }
             }
         } catch (SQLiteException e) {

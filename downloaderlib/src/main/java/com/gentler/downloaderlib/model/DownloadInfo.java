@@ -1,6 +1,8 @@
 package com.gentler.downloaderlib.model;
 
 
+import android.os.Build;
+
 import com.gentler.downloaderlib.config.DownloadState;
 
 /**
@@ -14,63 +16,90 @@ public class DownloadInfo {
     private String downloadUrl;
     private long size;
     private long currPos;
-    private int currState= DownloadState.IDLE;//当前未下载状态 初始化状态
+    private int currState = DownloadState.IDLE;//当前未下载状态 初始化状态
     private String dir;//表示当前下载文件的文件夹
 
-    public String getId() {
-        return id;
-    }
+    public static class Builder {
+        private DownloadInfo target;
 
-    public void setId(String id) {
-        this.id = id;
-    }
+        public Builder() {
+            target = new DownloadInfo();
+        }
 
-    public String getName() {
-        return name;
-    }
+        public Builder id(String id) {
+            target.id = id;
+            return this;
+        }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+        public Builder name(String name) {
+            target.name = name;
+            return this;
+        }
 
-    public String getDownloadUrl() {
-        return downloadUrl;
-    }
+        public Builder downloadUrl(String downloadUrl) {
+            target.downloadUrl = downloadUrl;
+            return this;
+        }
 
-    public void setDownloadUrl(String downloadUrl) {
-        this.downloadUrl = downloadUrl;
-    }
+        public Builder currPos(long currPos) {
+            target.currPos = currPos;
+            return this;
+        }
 
-    public long getSize() {
-        return size;
-    }
+        public Builder size(long size) {
+            target.size = size;
+            return this;
+        }
 
-    public void setSize(long size) {
-        this.size = size;
-    }
+        public Builder currState(int currState) {
+            target.currState = currState;
+            return this;
+        }
 
-    public long getCurrPos() {
-        return currPos;
+        public Builder dir(String dir) {
+            target.dir = dir;
+            return this;
+        }
+
+        public DownloadInfo build(){
+            return target;
+        }
     }
 
     public void setCurrPos(long currPos) {
         this.currPos = currPos;
     }
 
-    public int getCurrState() {
-        return currState;
-    }
-
     public void setCurrState(int currState) {
         this.currState = currState;
     }
 
-    public String getDir() {
-        return dir;
+    public String getId() {
+        return id;
     }
 
-    public void setDir(String dir) {
-        this.dir = dir;
+    public String getName() {
+        return name;
+    }
+
+    public String getDownloadUrl() {
+        return downloadUrl;
+    }
+
+    public long getSize() {
+        return size;
+    }
+
+    public long getCurrPos() {
+        return currPos;
+    }
+
+    public int getCurrState() {
+        return currState;
+    }
+
+    public String getDir() {
+        return dir;
     }
 
     @Override
