@@ -1,7 +1,6 @@
 package com.gentler.downloaderlib.task;
 
 
-import android.app.DownloadManager;
 import android.util.Log;
 
 import com.gentler.downloaderlib.config.DownloadState;
