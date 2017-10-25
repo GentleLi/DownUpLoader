@@ -12,19 +12,19 @@ import java.io.File;
  */
 
 public class DownloadHelper {
-    private static final String TAG=DownloadHelper.class.getSimpleName();
+    private static final String TAG = DownloadHelper.class.getSimpleName();
 
     public static String getTempFilePath(String fileDir, String fileName) {
-        return fileDir + fileName + Constants.TMP;
+        return fileDir + File.separator + fileName + Constants.TMP;
     }
 
-    public static void renameTo(String oldFilePath){
-        File oldFile=new File(oldFilePath);
-        String newFilePath=oldFilePath.substring(0,oldFilePath.lastIndexOf("."));
-        File newFile=new File(newFilePath);
-        if (oldFile.exists()&&newFile.exists()){
+    public static void renameTo(String oldFilePath) {
+        File oldFile = new File(oldFilePath);
+        String newFilePath = oldFilePath.substring(0, oldFilePath.lastIndexOf("."));
+        File newFile = new File(newFilePath);
+        if (oldFile.exists() && newFile.exists()) {
             oldFile.renameTo(newFile);
-            Log.d(TAG,oldFile.getName()+" rename to " +newFile.getName() +" success !!!");
+            Log.d(TAG, oldFile.getName() + " rename to " + newFile.getName() + " success !!!");
         }
     }
 

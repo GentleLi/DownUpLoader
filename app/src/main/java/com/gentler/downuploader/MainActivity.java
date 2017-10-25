@@ -51,8 +51,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
     @NeedsPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     @OnClick(R.id.btn_start)
     public void onClickDownload(View view) {
@@ -60,8 +58,8 @@ public class MainActivity extends AppCompatActivity {
         if (DownloaderManager.getInstance().isTargetDownloading(mTargetId)) {
             Toast.makeText(mContext, "下载目标已经存在于任务列表！", Toast.LENGTH_SHORT).show();
             LogUtils.d(TAG, "当前任务正在下载！");
-            mDownloadInfo=DownloaderManager.getInstance().getTarget(mTargetId);
-            if (mDownloadInfo.getCurrState()== DownloadState.PAUSE){
+            mDownloadInfo = DownloaderManager.getInstance().getTarget(mTargetId);
+            if (mDownloadInfo.getCurrState() == DownloadState.PAUSE) {
                 mDownloadInfo.setCurrState(DownloadState.RESTART);
                 DownloaderManager.getInstance().restart(mDownloadInfo);
             }
@@ -70,16 +68,20 @@ public class MainActivity extends AppCompatActivity {
         mDownloadInfo = DBManager.getInstance(mContext).find(mTargetId);
         if (null == mDownloadInfo) {
             Log.e(TAG, "新建下载任务");
-            DownloadInfo.Builder builder=new DownloadInfo.Builder();
-            mDownloadInfo=builder.id("GSMAlarm").name("GSMAlarm.apk").downloadUrl("http://192.168.1.105:8080/GsmAlarm.apk").size(3054762).currPos(0).dir(Storage.DOWNLOAD_DIR).build();
-
+            DownloadInfo.Builder builder = new DownloadInfo.Builder();
+            mDownloadInfo = builder.id("GSMAlarm").name("GSMAlarm.apk").downloadUrl("http://192.168.1.100:8080/GsmAlarm.apk").currState(DownloadState.IDLE).size(3054762).currPos(0).dir(Storage.DOWNLOAD_DIR).build();
         } else {
             Log.e(TAG, "断点下载操作");
             LogUtils.d(TAG, mDownloadInfo);
             mProgressBar.setProgress((int) (mDownloadInfo.getCurrPos() * 1000 / mDownloadInfo.getSize()));
+            if (mDownloadInfo.getCurrPos()==mDownloadInfo.getSize()){
+                //说明已经下载完成
+                Toast.makeText(mContext, "文件已经下载完成", Toast.LENGTH_SHORT).show();
+                return;
+            }
         }
 
-        mDownloadObserver=new BarDownloaderObserver(mDownloadInfo.getId()){
+        mDownloadObserver = new BarDownloaderObserver(mDownloadInfo.getId()) {
             @Override
             public void onDownloadPause(DownloadInfo downloadInfo) {
                 super.onDownloadPause(downloadInfo);
@@ -89,22 +91,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDownloadProgressChanged(DownloadInfo downloadInfo) {
                 super.onDownloadProgressChanged(downloadInfo);
-                Log.d(TAG,"currPos:"+downloadInfo.getCurrPos());
+                Log.d(TAG, "currPos:" + downloadInfo.getCurrPos());
             }
 
             @Override
             public void onDownloadSuccess(DownloadInfo downloadInfo) {
                 super.onDownloadSuccess(downloadInfo);
-
+                Log.d(TAG, "onDownloadSuccess:" + downloadInfo.getCurrState());
             }
 
             @Override
             public void onDownloadError(DownloadInfo downloadInfo) {
                 super.onDownloadError(downloadInfo);
-
+                Log.d(TAG, "onDownloadError:" + downloadInfo.getCurrState());
             }
-
-
         };
         mDownloadObserver.bindProgressBar(mProgressBar);
 //        mDownloadObserver = new SimpleDownloaderObserver(mDownloadInfo.getId()) {
@@ -141,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
     private BarDownloaderObserver mDownloadObserver;
 
 
-    public void backupDownload(){
+    public void backupDownload() {
         mTargetId = "download_ali";
         if (DownloaderManager.getInstance().isTargetDownloading(mTargetId)) {
             Log.e(TAG, "当前任务正在下载");
@@ -154,8 +154,8 @@ public class MainActivity extends AppCompatActivity {
         mDownloadInfo = DBManager.getInstance(mContext).find(mTargetId);
         if (null == mDownloadInfo) {
             Log.e(TAG, "新建下载任务");
-            DownloadInfo.Builder builder=new DownloadInfo.Builder();
-            mDownloadInfo=builder.id("GSMAlarm").name("GSMAlarm.apk").downloadUrl("http://192.168.1.105:8080/GsmAlarm.apk").size(3054762).currPos(0).dir(Storage.DOWNLOAD_DIR).build();
+            DownloadInfo.Builder builder = new DownloadInfo.Builder();
+            mDownloadInfo = builder.id("GSMAlarm").name("GSMAlarm.apk").downloadUrl("http://192.168.1.105:8080/GsmAlarm.apk").currState(DownloadState.IDLE).size(3054762).currPos(0).dir(Storage.DOWNLOAD_DIR).build();
         } else {
             Log.e(TAG, "断点下载操作");
             LogUtils.d(TAG, mDownloadInfo);

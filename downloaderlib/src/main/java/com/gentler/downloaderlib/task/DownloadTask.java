@@ -1,6 +1,7 @@
 package com.gentler.downloaderlib.task;
 
 
+import android.app.DownloadManager;
 import android.util.Log;
 
 import com.gentler.downloaderlib.config.DownloadState;
@@ -14,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -87,14 +89,19 @@ public class DownloadTask implements Runnable {
             connection.setUseCaches(true);
             connection.setDoInput(true);
             connection.setConnectTimeout(60 * 1000);
+//            long contentLength=connection.getContentLength();
+//            Log.e(TAG, "before connection.getContentLength()==" + connection.getContentLength());
+            if (downloadInfo.getSize()<=0){
+                downloadInfo.setSize(connection.getContentLength());
+            }
             connection.setRequestProperty("Range", "bytes=" + startPos + "-" + downloadInfo.getSize());
             if (stopPos < 0) {//下载出错，资源不存在
                 downloadInfo.setCurrState(DownloadState.ERROR);
             }
             connection.connect();
-            Log.e(TAG, "connection.getContentLength()==" + connection.getContentLength());
+            Log.e(TAG, "after connection.getContentLength()==" + connection.getContentLength());
             Log.e(TAG, "connection.getResponseCode()==" + connection.getResponseCode());
-            stopPos = connection.getContentLength();
+            stopPos = connection.getContentLength();//h
             RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rwd");
             randomAccessFile.seek(startPos);
             InputStream is = null;
@@ -108,11 +115,8 @@ public class DownloadTask implements Runnable {
                     DownloaderManager.getInstance().notifyDownloadProgressChanged(downloadInfo);
                     //下载过程中判断下载的状态 如果下载暂停 将下载信息存储到数据库中
                     if (downloadInfo.getCurrPos() == downloadInfo.getSize()) {
-                        downloadInfo.setCurrState(DownloadState.SUCCESS);
-                        String oldFilePath=DownloadHelper.getTempFilePath(downloadInfo.getDir(),downloadInfo.getName());
-                        DownloadHelper.renameTo(oldFilePath);
-                        DownloaderManager.getInstance().notifyDownloadSuccess(downloadInfo);
-                        DownloaderManager.getInstance().removeSingleDownloadTask(downloadInfo);//移除下载任务
+
+                        onDownloadSuccess();
                     }
                 }
                 if (downloadInfo.getCurrState() == DownloadState.PAUSE) {//暂停中
@@ -134,13 +138,24 @@ public class DownloadTask implements Runnable {
                     connection = null;
                 }
             }
-        } catch (IOException e) {
+        } catch(ConnectException e){
+
+        }catch (IOException e) {
             e.printStackTrace();
             downloadInfo.setCurrState(DownloadState.ERROR);
             onDownloadError();
         }finally{
 
         }
+    }
+
+    private void onDownloadSuccess() {
+        downloadInfo.setCurrState(DownloadState.SUCCESS);
+        String oldFilePath= DownloadHelper.getTempFilePath(downloadInfo.getDir(),downloadInfo.getName());
+        DownloadHelper.renameTo(oldFilePath);
+        DownloaderManager.getInstance().notifyDownloadSuccess(downloadInfo);
+        DBManager.getInstance(DownloaderManager.getContext()).update(downloadInfo);
+        DownloaderManager.getInstance().removeSingleDownloadTask(downloadInfo);//移除下载任务
     }
 
 
