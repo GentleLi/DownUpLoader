@@ -4,6 +4,7 @@ package com.gentler.downloaderlib.task;
 import android.util.Log;
 
 import com.gentler.downloaderlib.config.DownloadState;
+import com.gentler.downloaderlib.config.Storage;
 import com.gentler.downloaderlib.database.DBManager;
 import com.gentler.downloaderlib.helper.DownloadHelper;
 import com.gentler.downloaderlib.manager.DownloaderManager;
@@ -60,6 +61,10 @@ public class DownloadTask implements Runnable {
     @Override
     public void run() {
         String tempFile= DownloadHelper.getTempFilePath(downloadInfo.getDir(),downloadInfo.getName());
+        File downloadDir=new File(Storage.DOWNLOAD_DIR);
+        if (!downloadDir.exists()){
+            downloadDir.mkdirs();
+        }
         File file = new File(tempFile);//下载存放的文件
 
 
